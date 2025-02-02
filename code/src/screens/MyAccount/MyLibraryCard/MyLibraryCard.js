@@ -174,6 +174,8 @@ export const MyLibraryCard = () => {
      }
      if (version >= '24.09.00' && (shouldShowAlternateLibraryCard === '1' || shouldShowAlternateLibraryCard === 1)) {
           shouldShowAlternateLibraryCard = true;
+     } else {
+          shouldShowAlternateLibraryCard = false;
      }
 
      /* useFocusEffect(
