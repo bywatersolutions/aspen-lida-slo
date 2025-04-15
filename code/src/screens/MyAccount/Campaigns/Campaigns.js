@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Platform, SafeAreaView} from "react-native";
-import { Actionsheet, Alert, AlertDialog, Box, Button, Center, CheckIcon, FlatList, FormControl, HStack, Icon, Pressable, ScrollView, Select, Text, VStack } from 'native-base';
+import { Actionsheet, Alert, AlertDialog, Box, Button, Center, CheckIcon, FlatList, FormControl, HStack, Icon, Pressable, ScrollView, Select, Text, useDisclose, VStack } from 'native-base';
 import { fetchCampaigns, unenrollCampaign, enrollCampaign } from '../../../util/api/user';
 import { getTermFromDictionary } from '../../../translations/TranslationService';
 import { UserInterfaceIdiom } from 'expo-constants';
@@ -29,6 +29,11 @@ export const MyCampaigns = () => {
 	const [emailNotificationStatus, setEmailNotificationStatus] = React.useState(false);
 	const [openCampaignInfo, setOpenCampaignInfo] = React.useState({});
 	const [expandedCampaigns, setExpandedCampaigns] = React.useState(false);
+	const [selectedCampaign, setSelectedCampaign] = React.useState(null);
+	const [showActionSheet, setShowActionSheet] = React.useState(false);
+
+	const { isOpen, onOpen, onClose } = useDisclose();
+
 
 	const pageSize = 20;
 	let newPage = page +1;
@@ -121,27 +126,6 @@ export const MyCampaigns = () => {
 		}));
 	};
 
-
-	const renderMilestoneTable = (milestones) => (
-		<Box borderWidth="1" borderColor="coolGray.200" borderRadius="8" mt={3} p={3} width="100%">
-		<Text bold fontSize="lg" mb={2}>Milestones</Text>
-		<Box>
-		  <Box flexDirection="row" justifyContent="space-between" mb={1}>
-			<Text bold>Milestone Name</Text>
-			<Text bold>Progress</Text>
-			<Text bold>Reward</Text>
-		  </Box>
-		  {milestones.map((milestone, index) => (
-			<Box key={index} flexDirection="row" justifyContent="space-between" mb={1}>
-			  <Text>{milestone.name}</Text>
-			  <Text>{milestone.progress}</Text>
-			  <Text>{milestone.reward}</Text>
-			</Box>
-		  ))}
-		</Box>
-	  </Box>
-	);
-
 	const toggleExpanded = (id) => {
 		setExpandedCampaigns((prev) => ({
 			...prev,
@@ -149,8 +133,36 @@ export const MyCampaigns = () => {
 		}));
 	}
 
-	const renderCampaignItem = ({ item }) => {
 
+	const handleOpenActions = (item) => {
+		console.log('Action button clicked for: ', item);
+		setSelectedCampaign(item);
+		setShowActionSheet(true);
+		console.log('Show ActionSheet:', showActionSheet);
+	}
+
+	const handleCloseActions = () => {
+		setShowActionSheet(false);
+	}
+
+	const handleToggleEnrollment = () => {
+		console.log('Toggling enrollment for', selectedCampaign?.name);
+		onClose();
+	};
+	
+	const handleToggleNotifications = () => {
+		console.log('Toggling notifications for', selectedCampaign?.name);
+		onClose();
+	};
+	
+	const handleToggleLeaderboard = () => {
+		console.log('Toggling leaderboard for', selectedCampaign?.name);
+		onClose();
+	};
+
+
+	const renderCampaignItem = ({ item, onOpenActions, onToggle, expanded }) => {
+		console.log(onOpenActions);
 		if (!item) return null;
 
 		const isEnrolled = item.enrolled;
@@ -159,14 +171,13 @@ export const MyCampaigns = () => {
 		const campaignRewardName = item.rewardName ?? 'No Reward';
 		const campaignImageUrl = String(library.baseUrl + item.badgeImage);
 
-		const toggleExpanded = () => setExpandedCampaigns(!expandedCampaigns);
 
 		return (
 			<VStack space={2} px={4} py={3}>
 			<HStack justifyContent="space-between" borderBottomWidth={1} pb={2}>
 				<Text flex={2} bold>Campaign Name</Text>
 				<Text flex={3} bold>Reward</Text>
-				<Text flex={3} bold>Dates</Text>
+				<Text flex={2} bold>Dates</Text>
 				<Text flex={1} bold></Text>
 				<Text flex={1} bold></Text>
 			</HStack>
@@ -193,25 +204,25 @@ export const MyCampaigns = () => {
 						/>
 					)}
 				</Box>
-				<Text flex={3} color="gray.500">{`${startDate} - ${endDate}`}</Text>
+				<Text flex={2} color="gray.500">{`${startDate} - ${endDate}`}</Text>
 				<Button
-					onPress={toggleExpanded}
+					onPress={onToggle}
 					variant="ghost"
 					flex={1}
+					aria-label={expanded ? "Collapse campaign details" : "Expand campaign details"}
 				>
-					{expandedCampaigns ? <ChevronUpIcon size="4" /> :  <ChevronDownIcon size="4" />}
+					{expanded ? <ChevronUpIcon size="4" /> :  <ChevronDownIcon size="4" />}
 				</Button>
-				<Button
-				size="sm"
-				colorScheme={isEnrolled ? 'red' : 'teal'}
-				flex={1}
-				onPress={() => handleEnrollmentToggle(item)}
-				>
-				{isEnrolled ? 'Unenroll' : 'Enroll'}
+				<Button 
+					size="sm"
+					flex={1}
+					onPress={() => onOpenActions(item)}
+					aria-label='Open actions menu for this ${item.name}'>
+						Actions
 				</Button>
 			</HStack>
 
-			{expandedCampaigns && (
+			{expanded && (
 				<Box px={2} py={2} bg="coolGray.100" borderRadius="md">
 					{(item.milestones ?? []). length > 0 ? (
 						<VStack space={2}>
@@ -257,94 +268,44 @@ export const MyCampaigns = () => {
 					)}
 				</Box>
 			)}
+
+			{/* {showActionSheet && ( */}
+			<Actionsheet isOpen={showActionSheet} onClose={handleCloseActions}>
+				<Actionsheet.Content>
+						<Actionsheet.Item onPress={() => console.log('enroll')}>enroll</Actionsheet.Item>
+						<Actionsheet.Item onPress={() => console.log('Opten in to Noticifactions')}>Notifications</Actionsheet.Item>
+						<Actionsheet.Item onPress={() => console.log('Opten in to Leaderboard')}>Leaderbaord</Actionsheet.Item>
+						<Actionsheet.Item onPress={handleCloseActions}>Cancel</Actionsheet.Item>
+				</Actionsheet.Content>
+			</Actionsheet>
+			{/* )} */}
 			</VStack>
 		);
 	};
 
-
-
-	const getActionButtons = () => (
-			<Box alignItems="center" safeArea={2} bgColor="coolGray.100" borderBottomWidth="1">
-				<Select
-					selectedValue={filterBy}
-					minWidth="200"
-					accessibilityLabel='Filter Campaigns'
-					placeholder="Select Filter"
-					_selectedItem={{
-						bg: "teal.600",
-						endIcon: <CheckIcon size="5" />,
-					}}
-					mt={1}
-					onValueChange={(itemValue) => setFilterBy(itemValue)}
-				>
-					<Select.Item label={getTermFromDictionary(language, 'enrolled_campaigns')} value="enrolled" />
-					<Select.Item label={getTermFromDictionary(language, 'linked_user_campaigns')} value="linkedUserCampaigns" />
-					<Select.Item label={getTermFromDictionary(language, 'active_campaigns')} value="active" />
-					<Select.Item label={getTermFromDictionary(language, 'upcoming_campaigns')} value="upcoming" />
-					<Select.Item label={getTermFromDictionary(language, 'past_campaigns')} value="past" />
-					<Select.Item label={getTermFromDictionary(language, 'past_enrolled_campaigns')} value="pastEnrolled" />
-				</Select>
-			</Box>
-		);
-
-		const Empty = () => (
-			<Center mt={5} mb={5}>
-				<Text bold fontSize="lg">
-					{filterBy === 'active'
-						? getTermFromDictionary(language, 'no_active_campaigns')
-						: filterBy === 'enrolled'
-						? getTermFromDictionary(language, 'no_enrolled_campaigns')
-						: filterBy === 'past'
-						? getTermFromDictionary(language, 'no_past_campaigns')
-						: filterBy === 'upcoming'
-						? getTermFromDictionary(language, 'no_upcoming_campaigns')
-						: filterBy === 'pastEnrolled'
-						? getTermFromDictionary(language, 'no_past_enrolled_campaigns')
-						: filterBy === 'linkedUserCampaigns'
-						? getTermFromDictionary(language, 'no_linked_user_campaigns')
-						: getTermFromDictionary(language, 'no_campaigns')
-					}
-				</Text>
-			</Center>
-		);
+	const Empty = () => (
+		<Center mt={5} mb={5}>
+			<Text bold fontSize="lg">
+				{filterBy === 'active'
+					? getTermFromDictionary(language, 'no_active_campaigns')
+					: filterBy === 'enrolled'
+					? getTermFromDictionary(language, 'no_enrolled_campaigns')
+					: filterBy === 'past'
+					? getTermFromDictionary(language, 'no_past_campaigns')
+					: filterBy === 'upcoming'
+					? getTermFromDictionary(language, 'no_upcoming_campaigns')
+					: filterBy === 'pastEnrolled'
+					? getTermFromDictionary(language, 'no_past_enrolled_campaigns')
+					: filterBy === 'linkedUserCampaigns'
+					? getTermFromDictionary(language, 'no_linked_user_campaigns')
+					: getTermFromDictionary(language, 'no_campaigns')
+				}
+			</Text>
+		</Center>
+	);
 
 		
 		return (
-			// <SafeAreaView style={{ flex: 1}}>
-			// 	{getActionButtons()}
-			// 	{status === 'loading' || isFetching ? (
-			// 		<Text>Loading...</Text>
-			// 	) :  status === 'error' ? (
-			// 		<Text>Error loading campaigns</Text>
-			// 	) : (
-			// 		<FlatList
-			// 			data={data?.campaigns ?? []}
-			// 			ListEmptyComponent={Empty}
-			// 			ListFooterComponent={Paging}
-			// 			renderItem={({ item }) => (
-			// 				<Box p={3} borderBottomWidth="1">
-			// 					<Text>{item.title}</Text>
-			// 					{filterBy !== 'past' && filterBy !== 'pastEnrolled' && (
-			// 						<Button onPress={() => handleEnrollUnenroll(item.id)}>
-			// 						{enrollmentStatus[item.id]
-			// 							? getTermFromDictionary(language, 'unenroll')
-			// 							: getTermFromDictionary(language, 'enroll')}
-			// 						</Button>
-			// 					)}
-			// 					<Button onPress={() => handleOptInOutEmails(item.id)}>
-			// 						{emailNotificationStatus[item.id]
-			// 							? getTermFromDictionary(language, 'opt_in_to_campaign_emails')
-			// 							: getTermFromDictionary(language, 'opt_out_of_campaign_emails')
-			// 						}
-			// 					</Button>
-								
-			// 				</Box>
-			// 			)}
-			// 			keyExtractor={(item, index) => index.toString()}
-			// 			contentContainerStyle={{ paddingBottom: 30}}
-			// 		/>
-			// 	)}
-			// </SafeAreaView>
 			<SafeAreaView style={{ flex: 1 }}>
 				<Box alignItems="center" safeArea={2} bgColor="coolGray.100" borderBottomWidth="1">
 					<Select
@@ -380,6 +341,7 @@ export const MyCampaigns = () => {
 							item,
 							expanded: expandedCampaigns[item.id],
 							onToggle: () => toggleExpanded(item.id),
+							onOpenActions: handleOpenActions,
 						})
 					}
 					keyExtractor={(item, index) => index.toString()}
