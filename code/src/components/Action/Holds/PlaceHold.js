@@ -8,6 +8,8 @@ import { HoldsContext, LibraryBranchContext, LibrarySystemContext, ThemeContext,
 import { completeAction } from '../../../util/recordActions';
 import { HoldPrompt } from './HoldPrompt';
 
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../../util/logging.js';
+
 export const PlaceHold = (props) => {
      const queryClient = useQueryClient();
      const {
@@ -71,21 +73,36 @@ export const PlaceHold = (props) => {
           }
      }
 
-     console.log(pickupLocation);
+     logDebugMessage("Pickup Location: " + pickupLocation);
 
      const [sublocation, setSublocation] = React.useState(null);
 
-     //console.log(pickupLocation);
      let promptForHoldNotifications = user.promptForHoldNotifications ?? false;
 
      let loadHoldPrompt = false;
-     if ((volumeInfo.numItemsWithVolumes >= 1 && _.isEmpty(volumeId)) || _.size(accounts) > 0 || _.size(locations) > 1 || promptForHoldNotifications || holdTypeForFormat === 'item' || holdTypeForFormat === 'either' || (shouldPromptAlternateLibraryCard && !userHasAlternateLibraryCard)) {
+     if (volumeInfo.numItemsWithVolumes >= 1 && _.isEmpty(volumeId)) {
+          logDebugMessage("Showing Hold Prompt to select volume");
+          loadHoldPrompt = true;
+     }else if (_.size(accounts) > 0) {
+          logDebugMessage("Showing Hold Prompt due to linked accounts");
+          loadHoldPrompt = true;
+     }else if (_.size(locations) > 1 && user.rememberHoldPickupLocation == 0) {
+          logDebugMessage("Showing Hold Prompt due to having locations user.rememberHoldPickupLocation = " + user.rememberHoldPickupLocation);
+          loadHoldPrompt = true;
+     }else if (promptForHoldNotifications) {
+          logDebugMessage("Showing Hold Prompt due to prompt for hold notifications");
+          loadHoldPrompt = true;
+     }else if ((holdTypeForFormat === 'item' || holdTypeForFormat === 'either') && _.isEmpty(volumeId)){
+          logDebugMessage("Showing Hold Prompt due to hold type");
+          loadHoldPrompt = true;
+     }else if (shouldPromptAlternateLibraryCard && !userHasAlternateLibraryCard) {
+          logDebugMessage("Showing Hold Prompt due to alternate library card");
           loadHoldPrompt = true;
      }
 
      //Check to see if the title is already on hold for the patron
-     //console.log("holdTypeForFormat = " + holdTypeForFormat);
-     //console.log("record = " + record);
+     logDebugMessage("holdTypeForFormat = " + holdTypeForFormat);
+     logDebugMessage("record = " + record);
      let alreadyOnHold = false;
      holds.forEach(holdSection =>  {
           holdSection.data.forEach(hold => {
@@ -94,13 +111,13 @@ export const PlaceHold = (props) => {
                }
           });
      });
-     //console.log("Already on hold = " + alreadyOnHold);
      if (alreadyOnHold) {
+          logDebugMessage("Showing Hold Prompt because titles is already on hold");
           loadHoldPrompt = true;
      }
 
 
-     if(user.rememberHoldPickupLocation) {
+     if (user.rememberHoldPickupLocation) {
           let userPickupLocationId = user.pickupLocationId ?? user.homeLocationId;
           if (_.isNumber(user.pickupLocationId)) {
                userPickupLocationId = _.toString(user.pickupLocationId);
@@ -114,17 +131,14 @@ export const PlaceHold = (props) => {
                }
           } else {
                // soft check on valid pickup location, if nothing is returned out of the locations array, its probably invalid
-          }
-
-          if ((volumeInfo.numItemsWithVolumes >= 1 && _.isEmpty(volumeId)) || _.size(accounts) > 0 || promptForHoldNotifications || holdTypeForFormat === 'item' || holdTypeForFormat === 'either' || (shouldPromptAlternateLibraryCard && !userHasAlternateLibraryCard)) {
+               logDebugMessage("Showing Hold Prompt because current pickup location is invalid");
                loadHoldPrompt = true;
-          } else {
-               loadHoldPrompt = false;
           }
      }
 
 
      if (loadHoldPrompt) {
+          logDebugMessage("Need to load hold prompt");
           return (
                <HoldPrompt
                     language={language}
@@ -160,6 +174,11 @@ export const PlaceHold = (props) => {
                />
           );
      } else {
+          logDebugMessage("Hold can be placed without prompting");
+          let holdType = 'default';
+          if (!_.isEmpty(volumeId)) {
+               holdType = 'volume';
+          }
           // The hold can be placed without additional prompting to the user.
           // See HoldPrompt.js for actions if a pickup location etc. is needed.
           return (
@@ -172,7 +191,7 @@ export const PlaceHold = (props) => {
                          maxWidth="100%"
                          onPress={async () => {
                               setLoading(true);
-                              await completeAction(record, type, user.id, null, null, pickupLocation, sublocation, library.baseUrl, volumeId, 'default').then(async (ilsResponse) => {
+                              await completeAction(record, type, user.id, '', '', pickupLocation, sublocation, user.rememberHoldPickupLocation, library.baseUrl, volumeId, holdType).then(async (ilsResponse) => {
                                    setResponse(ilsResponse);
 
                                    if (ilsResponse?.confirmationNeeded && ilsResponse.confirmationNeeded) {

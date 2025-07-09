@@ -4,6 +4,8 @@ import { Select, SelectTrigger, SelectInput, SelectIcon, SelectPortal, SelectBac
 import _ from 'lodash';
 import { getTermFromDictionary } from '../../../translations/TranslationService';
 
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../../util/logging.js';
+
 export const SelectNewHoldSublocation = (props) => {
      const {sublocations, location, activeSublocation, setActiveSublocation, language, textColor, theme} = props;
 
@@ -15,7 +17,7 @@ export const SelectNewHoldSublocation = (props) => {
 
                     const sublocationValues = Object.values(sublocations);
                     let activeSublocationNeedsToChange = true;
-                    console.log("Active sublocation is " + activeSublocation);
+                    logDebugMessage("Active sublocation is " + activeSublocation);
                     for (index in sublocationValues) {
                          let sublocation = sublocationValues[index];
                          if (sublocation.locationCode == location) {
@@ -26,8 +28,8 @@ export const SelectNewHoldSublocation = (props) => {
                          }
                     }
 
-                    console.log("Valid sublocations");
-                    console.log(validSublocations);
+                    logDebugMessage("Valid sublocations");
+                    logDebugMessage(validSublocations);
                     const validSublocationSize = validSublocations.length;
                     if (validSublocationSize > 0) {
                          validSublocations.sort((a, b) => a.subLocationWeight - b.subLocationWeight);
@@ -80,20 +82,20 @@ export const SelectNewHoldSublocation = (props) => {
                          );
                     }else if (validSublocationSize <= 1) {
                          //No sub locations to choose from
-                         console.log("Do not need to display sublocations, got " + validSublocationSize);
+                         logDebugMessage("Do not need to display sublocations, got " + validSublocationSize);
                          return null;
                     }
                }else{
-                    console.log("Sublocations are an array, expected object");
+                    logDebugMessage("Sublocations are an array, expected object");
                     return null;
                }
           } catch (e) {
-               console.log("Error loading sublocations");
-               console.error(e);
+               logErrorMessage("Error loading sublocations");
+               logErrorMessage(e);
                return <Text>Oh no, there was an error loading sublocations</Text>;
           }
      }else{
-          console.log("undefined");
+          logDebugMessage("undefined");
           return <Text>Sublocations were undefined</Text>;
      }
 };

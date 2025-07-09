@@ -46,7 +46,7 @@ export async function completeAction(id, actionType, patronId, formatId = '', sa
                     return getPromptForOverdriveEmail;
                }
           } else {
-               return await placeHold(url, itemId, source, patronId, pickupBranch, sublocation, volumeId, holdType, id, holdNotificationPreferences, variationId);
+               return await placeHold(url, itemId, source, patronId, pickupBranch, sublocation, rememberPickupLocation, volumeId, holdType, id, holdNotificationPreferences, variationId);
           }
      } else if (actionType.includes('sample')) {
           return await overDriveSample(url, formatId, itemId, sampleNumber);
@@ -128,11 +128,12 @@ export async function placeHold(url, itemId, source, patronId, pickupBranch, sub
           id = variationId;
           holdType = 'item';
      }
-     if(volumeId && itemId) {
+     if (volumeId && itemId) {
           if(holdType === 'item') {
                holdType = 'volume';
           }
      }
+
      const setParams = {
           itemId: id,
           itemSource: source,
@@ -146,6 +147,8 @@ export async function placeHold(url, itemId, source, patronId, pickupBranch, sub
           bibId,
           rememberHoldPickupLocation: rememberPickupLocation ?? "",
      };
+     logDebugMessage("Placing hold");
+     logDebugMessage(setParams);
 
      if (holdNotificationPreferences) {
           if (holdNotificationPreferences.emailNotification === true) {

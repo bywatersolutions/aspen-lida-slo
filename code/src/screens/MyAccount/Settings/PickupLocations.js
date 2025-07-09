@@ -36,6 +36,8 @@ import {refreshProfile, updateHoldPickupPreferences} from "../../../util/api/use
 import {PATRON} from "../../../util/loadPatron";
 import {SelectNewHoldSublocation} from "../../../components/Action/Holds/SelectNewHoldSublocation";
 
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../../util/logging.js';
+
 export const Settings_PickupLocations = () => {
 	const [loading, setLoading] = React.useState(false);
 	const { library } = React.useContext(LibrarySystemContext);
@@ -47,7 +49,8 @@ export const Settings_PickupLocations = () => {
 	let userPickupLocation1Id = user.myLocation1Id ?? "";
 	let userPickupLocation2Id = user.myLocation2Id ?? "";
 	let userSublocationPickupId = user.pickupSublocationId ?? "";
-	const rememberHoldPickupLocation = user.rememberHoldPickupLocation ?? 0;
+	logDebugMessage("Remember Hold Pickup Location in Preferences is " + user.rememberHoldPickupLocation);
+	const rememberHoldPickupLocation = user.rememberHoldPickupLocation ? 1 : 0;
 
 	if (_.isNumber(user.pickupLocationId)) {
 		userPickupLocationId = _.toString(user.pickupLocationId);
@@ -128,7 +131,6 @@ export const Settings_PickupLocations = () => {
 					<FormControlLabelText color={textColor}>{getTermFromDictionary(language, 'preferred_pickup_branch')}</FormControlLabelText>
 				</FormControlLabel>
 				<Select
-					isReadOnly={Platform.OS === 'android'}
 					name="pickupLocations"
 					selectedValue={location}
 					minWidth="200"
@@ -173,7 +175,6 @@ export const Settings_PickupLocations = () => {
 						<FormControlLabelText color={textColor}>{getTermFromDictionary(language, 'alternate_pickup_location_1')}</FormControlLabelText>
 					</FormControlLabel>
 					<Select
-						isReadOnly={Platform.OS === 'android'}
 						name="pickupLocations1"
 						selectedValue={location1Id}
 						minWidth="200"
@@ -216,7 +217,6 @@ export const Settings_PickupLocations = () => {
 						<FormControlLabelText color={textColor}>{getTermFromDictionary(language, 'alternate_pickup_location_2')}</FormControlLabelText>
 					</FormControlLabel>
 					<Select
-						isReadOnly={Platform.OS === 'android'}
 						name="pickupLocation2"
 						selectedValue={location2Id}
 						minWidth="200"
@@ -262,7 +262,7 @@ export const Settings_PickupLocations = () => {
 					<Checkbox
 						size="sm"
 						value={rememberPickupLocation}
-						name="rememberHoldPickupLocation"
+                              name="rememberHoldPickupLocation"
 						defaultIsChecked={rememberPickupLocation}
 						onChange={(value) => {
 							setRememberPickupLocation(value);
@@ -276,16 +276,16 @@ export const Settings_PickupLocations = () => {
 			) : null}
 			<ButtonGroup>
 				<Button bgColor={theme['colors']['primary']['500']}
-				        onPress={async () => {
-							setLoading(true);
-					        await updateHoldPickupPreferences(location, location1Id, location2Id, sublocation, rememberPickupLocation, language, library.baseUrl).then(async () => {
-								setLoading(false);
-						        await refreshProfile(library.baseUrl).then(async (result) => {
-							        updateUser(result);
-						        });
-					        })
-				        }}
-				        isDisabled={loading}>
+                         onPress={async () => {
+                              setLoading(true);
+                              await updateHoldPickupPreferences(location, location1Id, location2Id, sublocation, rememberPickupLocation, language, library.baseUrl).then(async () => {
+                                   setLoading(false);
+                                   await refreshProfile(library.baseUrl).then(async (result) => {
+                                      updateUser(result);
+                                   });
+                              })
+                         }}
+                         isDisabled={loading}>
 					{loading ? <ButtonSpinner color={theme['colors']['primary']['500-text']} /> : <ButtonText color={theme['colors']['primary']['500-text']}>{getTermFromDictionary(language, 'update')}</ButtonText>}
 				</Button>
 			</ButtonGroup>
