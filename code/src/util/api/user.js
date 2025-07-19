@@ -1,10 +1,12 @@
 import {create} from 'apisauce';
 import i18n from 'i18n-js';
-import _ from 'lodash';
+import {includes, isUndefined, orderBy, size, sortBy, values} from 'lodash';
 import {popAlert} from '../../components/loadError';
 import {createAuthTokens, ENDPOINT, getHeaders, postData} from '../apiAuth';
 import {GLOBALS} from '../globals';
 import {PATRON} from '../loadPatron';
+
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../logging.js';
 
 const endpoint = ENDPOINT.user;
 
@@ -95,7 +97,12 @@ export async function loginToLiDA(username, password, url) {
      });
      const results = await discovery.post('/UserAPI?method=loginToLiDA', postBody);
      if (results.ok) {
+          logInfoMessage("Got API response from loginToLiDA");
+          logInfoMessage(results.data);
           return results.data.result;
+     }else{
+          logWarnMessage("Login to LiDA failed");
+          logWarnMessage(results);
      }
 }
 
@@ -341,14 +348,14 @@ export async function getPatronHolds(readySort = 'expire', pendingSort = 'sortTi
                if (typeof allHolds.unavailable !== 'undefined') {
                     holdsNotReady = Object.values(allHolds.unavailable);
                     if (pendingSortMethod === 'position') {
-                         holdsNotReady = _.orderBy(holdsNotReady, [pendingSortMethod], ['desc']);
+                         holdsNotReady = orderBy(holdsNotReady, [pendingSortMethod], ['desc']);
                     }
-                    holdsNotReady = _.orderBy(holdsNotReady, [pendingSortMethod], ['asc']);
+                    holdsNotReady = orderBy(holdsNotReady, [pendingSortMethod], ['asc']);
                }
 
                if (typeof allHolds.available !== 'undefined') {
                     holdsReady = Object.values(allHolds.available);
-                    holdsReady = _.orderBy(holdsReady, [readySortMethod], ['asc']);
+                    holdsReady = orderBy(holdsReady, [readySortMethod], ['asc']);
                }
           }
 
@@ -397,7 +404,7 @@ export function sortHolds(holds, pendingSort, readySort) {
           if (holds[1].title === 'Pending') {
                holdsNotReady = holds[1].data;
                if (pendingSortMethod === 'position') {
-                    holdsNotReady = _.orderBy(
+                    holdsNotReady = orderBy(
                          holdsNotReady,
                          function (obj) {
                               return Number(obj.position);
@@ -405,12 +412,12 @@ export function sortHolds(holds, pendingSort, readySort) {
                          ['desc']
                     );
                }
-               holdsNotReady = _.orderBy(holdsNotReady, [pendingSortMethod], ['asc']);
+               holdsNotReady = orderBy(holdsNotReady, [pendingSortMethod], ['asc']);
           }
 
           if (holds[0].title === 'Ready') {
                holdsReady = holds[0].data;
-               holdsReady = _.orderBy(holdsReady, [readySortMethod], ['asc']);
+               holdsReady = orderBy(holdsReady, [readySortMethod], ['asc']);
           }
      }
 
@@ -454,7 +461,7 @@ export async function getPatronCheckedOutItems(source = 'all', url, refresh = tr
                //console.log("Loaded checkouts successfully");
                let items = response.data.result.checkedOutItems ?? [];
                //console.log("Found " + items.length + " checkouts");
-               items = _.sortBy(items, ['daysUntilDue', 'title']);
+               items = sortBy(items, ['daysUntilDue', 'title']);
                return items;
           }else{
                return [];
@@ -489,7 +496,7 @@ export function sortCheckouts(checkouts, sort) {
      }
 
      if (checkouts) {
-          sortedCheckouts = _.orderBy(checkouts, [sortMethod], [order]);
+          sortedCheckouts = orderBy(checkouts, [sortMethod], [order]);
      }
 
      return sortedCheckouts;
@@ -620,12 +627,12 @@ export async function getLinkedAccounts(primaryUser, cards, barcodeStyle, url, l
                homeLocation: primaryUser.homeLocation,
           };
           cardStack.push(primaryCard);
-          if (!_.isUndefined(response.data.result.linkedAccounts)) {
-               accounts = _.values(response.data.result.linkedAccounts);
+          if (!isUndefined(response.data.result.linkedAccounts)) {
+               accounts = values(response.data.result.linkedAccounts);
                PATRON.linkedAccounts = accounts;
-               if (_.size(accounts) >= 1) {
+               if (size(accounts) >= 1) {
                     accounts.forEach((account) => {
-                         if (_.includes(cards, account.ils_barcode) === false) {
+                         if (includes(cards, account.ils_barcode) === false) {
                               count = count + 1;
                               const card = {
                                    key: count,
@@ -638,7 +645,7 @@ export async function getLinkedAccounts(primaryUser, cards, barcodeStyle, url, l
                                    homeLocation: account.homeLocation,
                               };
                               cardStack.push(card);
-                         } else if (_.includes(cards, account.cat_username) === false) {
+                         } else if (includes(cards, account.cat_username) === false) {
                               count = count + 1;
                               const card = {
                                    key: count,
@@ -684,11 +691,11 @@ export async function getViewerAccounts(url, language = 'en') {
      const response = await discovery.post('/UserAPI?method=getViewers', postBody);
      if (response.ok) {
           let viewers = [];
-          if (!_.isUndefined(response.data.result.viewers)) {
+          if (!isUndefined(response.data.result.viewers)) {
                viewers = response.data.result.viewers;
                PATRON.viewerAcccounts = viewers;
           }
-          return _.values(viewers);
+          return values(viewers);
      } else {
           console.log(response);
           return false;
@@ -718,7 +725,7 @@ export async function addLinkedAccount(username = '', password = '', url, langua
      const response = await discovery.post('/UserAPI?method=addAccountLink', postBody);
      if (response.ok) {
           let status = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                status = response.data.result.success;
                if (status !== true) {
                     popAlert(response.data.result.title, response.data.result.message, 'error');
@@ -758,7 +765,7 @@ export async function removeLinkedAccount(patronToRemove, url, language) {
      const response = await discovery.post('/UserAPI?method=removeAccountLink', postBody);
      if (response.ok) {
           let status = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                status = response.data.result.success;
                if (status !== true) {
                     popAlert(response.data.result.title, response.data.result.message, 'error');
@@ -798,7 +805,7 @@ export async function removeViewerAccount(patronToRemove, url, language = 'en') 
      const response = await discovery.post('/UserAPI?method=removeViewerLink', postBody);
      if (response.ok) {
           let status = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                status = response.data.result.success;
                if (status !== true) {
                     popAlert(response.data.result.title, response.data.result.message, 'error');
@@ -832,7 +839,7 @@ export async function disableAccountLinking(language, url) {
      const response = await discovery.post('/UserAPI?method=disableAccountLinking', postBody);
      if (response.ok) {
           let status = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                status = response.data.result.success;
                if (status !== true) {
                     popAlert(response.data.result.title, response.data.result.message, 'error');
@@ -866,7 +873,7 @@ export async function enableAccountLinking(language, url) {
      const response = await discovery.post('/UserAPI?method=enableAccountLinking', postBody);
      if (response.ok) {
           let status = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                status = response.data.result.success;
                if (status !== true) {
                     popAlert(response.data.result.title, response.data.result.message, 'error');
@@ -1149,7 +1156,7 @@ export async function updateNotificationOnboardingStatus(status, token, url, lan
      const response = await discovery.post('/UserAPI?method=updateNotificationOnboardingStatus', postBody);
      if (response.ok) {
           let wasUpdated = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                wasUpdated = response.data.result.success;
                if (wasUpdated === true || wasUpdated === 'true') {
                     return true;
@@ -1323,7 +1330,7 @@ export async function updateScreenBrightnessStatus(status, url, language = 'en')
      const response = await discovery.post('/UserAPI?method=updateScreenBrightnessStatus', postBody);
      if (response.ok) {
           let wasUpdated = false;
-          if (!_.isUndefined(response.data.result.success)) {
+          if (!isUndefined(response.data.result.success)) {
                wasUpdated = response.data.result.success;
                if (wasUpdated === true || wasUpdated === 'true') {
                     return true;

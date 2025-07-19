@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { create } from 'apisauce';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
-import _ from 'lodash';
+import {includes, isUndefined} from 'lodash';
 import { Button, Center, FormControl, Icon, Input, Pressable } from 'native-base';
 import React, { useRef } from 'react';
 
@@ -23,6 +23,8 @@ import { GLOBALS } from '../../util/globals';
 import { formatDiscoveryVersion, LIBRARY, reloadBrowseCategories } from '../../util/loadLibrary';
 import { PATRON } from '../../util/loadPatron';
 import { ResetExpiredPin } from './ResetExpiredPin';
+
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../util/logging.js';
 
 export const GetLoginForm = (props) => {
      const navigation = useNavigation();
@@ -74,83 +76,78 @@ export const GetLoginForm = (props) => {
                message: null,
                status: 0,
           });
+          logDebugMessage ("Base Url is: " + patronsLibrary['baseUrl'] + " library is: " + patronsLibrary['libraryId']);
           const result = await checkAspenDiscovery(patronsLibrary['baseUrl'], patronsLibrary['libraryId']);
           if (result.success) {
+               logDebugMessage("Successfully received library info");
                const version = formatDiscoveryVersion(result.library.discoveryVersion);
 
                // check if catalog is in offline mode
-               if (version >= '24.03.00') {
-                    const currentStatus = await getCatalogStatus(patronsLibrary['baseUrl']);
-                    if (currentStatus) {
-                         console.log(currentStatus);
-                         updateCatalogStatus(currentStatus);
-                         if (currentStatus.status >= 1) {
-                              // catalog is offline
-                              console.log('catalog is offline');
-                              setLoading(false);
-                              setLoginError(true);
-                              if (currentStatus.message) {
-                                   let tmp = stripHTML(currentStatus.message);
-                                   tmp = tmp.trim();
-                                   setLoginErrorMessage(tmp);
-                              } else {
-                                   getTermFromDictionary('en', 'catalog_offline_message');
-                              }
-                              return;
+               logDebugMessage("Checking if catalog is offline baseUrl:" + patronsLibrary['baseUrl'] );
+               const currentStatus = await getCatalogStatus(patronsLibrary['baseUrl']);
+               if (currentStatus) {
+                    logDebugMessage('Catalog status: ' + JSON.stringify(currentStatus));
+                    updateCatalogStatus(currentStatus);
+                    if (currentStatus.status >= 1) {
+                         // catalog is offline
+                         logInfoMessage('catalog is offline');
+                         setLoading(false);
+                         setLoginError(true);
+                         if (currentStatus.message) {
+                              let tmp = stripHTML(currentStatus.message);
+                              tmp = tmp.trim();
+                              setLoginErrorMessage(tmp);
                          } else {
-                              console.log('catalog online');
-                              console.log(catalogStatus);
-                              updateCatalogStatus({
-                                   status: 0,
-                                   message: null,
-                              });
+                              getTermFromDictionary('en', 'catalog_offline_message');
                          }
+                         return;
+                    } else {
+                         logInfoMessage('catalog online');
+                         logDebugMessage(catalogStatus);
+                         updateCatalogStatus({
+                              status: 0,
+                              message: null,
+                         });
                     }
+               }else{
+                    logDebugMessage('Could not get catalog status');
                }
 
-               if (version >= '23.02.00') {
-                    setPinValidationRules(result.library.pinValidationRules);
-                    console.log(patronsLibrary['baseUrl']);
-                    const validatedUser = await loginToLiDA(valueUser, valueSecret, patronsLibrary['baseUrl']);
-                    if (validatedUser) {
-                         GLOBALS.appSessionId = validatedUser.session ?? '';
-                         PATRON.language = validatedUser.lang ?? 'en';
-                         PATRON.homeLocationId = validatedUser.homeLocationId ?? null;
-                         updateLanguage(validatedUser.lang ?? 'en');
-                         if (validatedUser.success) {
-                              await setAsyncStorage();
-                              signIn();
+               setPinValidationRules(result.library.pinValidationRules);
+               const validatedUser = await loginToLiDA(valueUser, valueSecret, patronsLibrary['baseUrl']);
+               if (validatedUser) {
+                    logDebugMessage("Successfully logged in");
+                    GLOBALS.appSessionId = validatedUser.session ?? '';
+                    PATRON.language = validatedUser.lang ?? 'en';
+                    PATRON.homeLocationId = validatedUser.homeLocationId ?? null;
+                    updateLanguage(validatedUser.lang ?? 'en');
+                    if (validatedUser.success) {
+                         await setAsyncStorage();
+                         signIn();
+                         setLoading(false);
+                    } else {
+                         if (validatedUser.resetToken) {
+                              logInfoMessage('Expired pin!');
+                              setResetToken(validatedUser.resetToken);
+                              setUserId(validatedUser.userId);
+                              setExpiredPin(true);
                               setLoading(false);
                          } else {
-                              if (validatedUser.resetToken) {
-                                   console.log('Expired pin!');
-                                   setResetToken(validatedUser.resetToken);
-                                   setUserId(validatedUser.userId);
-                                   setExpiredPin(true);
-                                   setLoading(false);
-                              } else {
-                                   console.log(validatedUser.message);
-                                   setLoginError(true);
-                                   setLoginErrorMessage(validatedUser.message);
-                                   setLoading(false);
-                              }
-                         }
-                    }
-               } else {
-                    const validatedUser = await validateUser(valueUser, valueSecret, patronsLibrary['baseUrl']);
-                    if (validatedUser) {
-                         if (validatedUser.success['id']) {
-                              await setAsyncStorage();
-                              signIn();
-                              setLoading(false);
-                         } else {
+                              logInfoMessage(validatedUser.message);
                               setLoginError(true);
-                              setLoginErrorMessage(getTermFromDictionary('en', 'invalid_user'));
+                              setLoginErrorMessage(validatedUser.message);
                               setLoading(false);
                          }
                     }
+               }else{
+                    setLoginError(true);
+                    setLoginErrorMessage(getTermFromDictionary('en', 'unknown_login_error'));
+                    setLoading(false);
+                    logWarnMessage("Could not login to library");
+                    logWarnMessage(validatedUser);
                }
           } else {
+               logWarnMessage("Could not connect to library, base url is " + patronsLibrary['baseUrl']);
                setLoading(false);
                setLoginError(true);
                setLoginErrorMessage(getTermFromDictionary('en', 'error_no_library_connection'));
@@ -167,10 +164,10 @@ export const GetLoginForm = (props) => {
           await AsyncStorage.setItem('@lastStoredVersion', Constants.expoConfig.version);
           const autoPickUserHomeLocation = parseInt(LIBRARY.appSettings?.autoPickUserHomeLocation ?? 0);
 
-          if (PATRON.homeLocationId && !_.includes(GLOBALS.slug, 'aspen-lida') && autoPickUserHomeLocation === 1) {
+          if (PATRON.homeLocationId && !includes(GLOBALS.slug, 'aspen-lida') && autoPickUserHomeLocation === 1) {
                console.log(PATRON.homeLocationId);
                await getLocationInfo(GLOBALS.url, PATRON.homeLocationId).then(async (patronsLibrary) => {
-                    if (!_.isUndefined(patronsLibrary.baseUrl)) {
+                    if (!isUndefined(patronsLibrary.baseUrl)) {
                          LIBRARY.url = patronsLibrary.baseUrl;
                          await SecureStore.setItemAsync('library', JSON.stringify(patronsLibrary.libraryId));
                          await AsyncStorage.setItem('@libraryId', JSON.stringify(patronsLibrary.libraryId));

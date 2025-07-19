@@ -33,6 +33,8 @@ import { GLOBALS } from '../../util/globals';
 import { formatDiscoveryVersion, getPickupLocations, reloadBrowseCategories } from '../../util/loadLibrary';
 import { getBrowseCategoryListForUser, getILSMessages, PATRON } from '../../util/loadPatron';
 
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../util/logging.js';
+
 Notifications.setNotificationHandler({
      handleNotification: async () => ({
           shouldShowAlert: true,
@@ -42,15 +44,15 @@ Notifications.setNotificationHandler({
 });
 
 onlineManager.setEventListener(setOnline => {
-	return NetInfo.addEventListener(state => {
-		setOnline(!!state.isConnected)
-	})
+     return NetInfo.addEventListener(state => {
+          setOnline(!!state.isConnected)
+     })
 })
 
 function onAppStateChange(AppStateStatus) {
-	if (Platform.OS !== 'web') {
-		focusManager.setFocused(AppStateStatus === 'active')
-	}
+     if (Platform.OS !== 'web') {
+          focusManager.setFocused(AppStateStatus === 'active')
+     }
 }
 
 const prefix = Linking.createURL('/');
@@ -88,11 +90,11 @@ export const DrawerContent = () => {
           const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
                handleNewNotificationResponse(response);
           });
-		 const stateChangeSubscription = AppState.addEventListener('change', onAppStateChange)
+           const stateChangeSubscription = AppState.addEventListener('change', onAppStateChange)
           return () => {
-			subscription.remove();
-			stateChangeSubscription.remove();
-		};
+               subscription.remove();
+               stateChangeSubscription.remove();
+          };
      }, []);
 
      useQuery(['catalog_status', library.baseUrl], () => getCatalogStatus(library.baseUrl), {
@@ -111,24 +113,26 @@ export const DrawerContent = () => {
           refetchIntervalInBackground: true,
           refetchOnWindowFocus: 'always',
           onSuccess: (data) => {
-			  const validProfile = data.success ?? true;
-			  if(validProfile) {
-				  setInvalidSession(false);
-					if (user) {
-						if (data !== user) {
-							updateUser(data);
-							updateLanguage(data.interfaceLanguage ?? 'en');
-							PATRON.language = data.interfaceLanguage ?? 'en';
-						}
-					} else {
-						updateUser(data);
-						updateLanguage(data.interfaceLanguage ?? 'en');
-						PATRON.language = data.interfaceLanguage ?? 'en';
-					}
-				} else {
-				  // no profile returned, invalid user
-				  setInvalidSession(true);
-			  }
+               const validProfile = data.success ?? true;
+               if(validProfile) {
+                    setInvalidSession(false);
+                    if (user) {
+                         if (data !== user) {
+                              updateUser(data);
+                              updateLanguage(data.interfaceLanguage ?? 'en');
+                              PATRON.language = data.interfaceLanguage ?? 'en';
+                         }
+                    } else {
+                         updateUser(data);
+                         updateLanguage(data.interfaceLanguage ?? 'en');
+                         PATRON.language = data.interfaceLanguage ?? 'en';
+                    }
+               } else {
+                    // no profile returned, invalid user
+                    logWarnMessage("Session was invalid reloading profile");
+                    logWarnMessage(data);
+                    setInvalidSession(true);
+               }
           },
      });
 
@@ -167,7 +171,7 @@ export const DrawerContent = () => {
           refetchInterval: 60 * 1000 * 15,
           refetchIntervalInBackground: true,
           notifyOnChangeProps: ['data'],
-		 refetchOnWindowFocus: 'always',
+          refetchOnWindowFocus: 'always',
           onSuccess: (data) => updateLists(data),
           placeholderData: [],
      });
@@ -200,7 +204,7 @@ export const DrawerContent = () => {
      useQuery(['ils_messages', user.id, library.baseUrl, language], () => getILSMessages(library.baseUrl), {
           refetchInterval: 60 * 1000 * 5,
           refetchIntervalInBackground: true,
-		  refetchOnWindowFocus: 'always',
+          refetchOnWindowFocus: 'always',
           placeholderData: [],
      });
 
@@ -225,7 +229,7 @@ export const DrawerContent = () => {
      useQuery(['locations', library.baseUrl, language, userLatitude, userLongitude], () => getLocations(library.baseUrl, language, userLatitude, userLongitude), {
           refetchInterval: 60 * 1000 * 30,
           refetchIntervalInBackground: true,
-		 refetchOnWindowFocus: 'always',
+          refetchOnWindowFocus: 'always',
           placeholderData: [],
           onSuccess: (data) => {
                updateLocations(data);
@@ -387,7 +391,7 @@ export const DrawerContent = () => {
                               <UserLists />
                               <SavedSearches />
                               <ReadingHistory />
-							  <YearInReview />
+                                     <YearInReview />
                               <Fines />
                               <NotificationHistory />
                               <Events />
@@ -927,38 +931,38 @@ const Events = () => {
 };
 
 const YearInReview = () => {
-	const { user } = React.useContext(UserContext);
-	const { library } = React.useContext(LibrarySystemContext);
-	const { language } = React.useContext(LanguageContext);
-	const version = formatDiscoveryVersion(library.discoveryVersion);
-	const backgroundColor = useToken('colors', useColorModeValue('warmGray.200', 'coolGray.900'));
-	const textColor = useToken('colors', useColorModeValue('gray.800', 'coolGray.200'));
+     const { user } = React.useContext(UserContext);
+     const { library } = React.useContext(LibrarySystemContext);
+     const { language } = React.useContext(LanguageContext);
+     const version = formatDiscoveryVersion(library.discoveryVersion);
+     const backgroundColor = useToken('colors', useColorModeValue('warmGray.200', 'coolGray.900'));
+     const textColor = useToken('colors', useColorModeValue('gray.800', 'coolGray.200'));
 
-	let shouldShowYearInReview = false;
-	if (typeof user.hasYearInReview !== 'undefined') {
-		shouldShowYearInReview = user.hasYearInReview;
-	}
+     let shouldShowYearInReview = false;
+     if (typeof user.hasYearInReview !== 'undefined') {
+          shouldShowYearInReview = user.hasYearInReview;
+     }
 
-	if (version >= '24.12.00' && shouldShowYearInReview) {
-		return (
-			<Pressable px="2" py="3" rounded="md" onPress={async () => await passUserToDiscovery(library.baseUrl, 'YearInReview', user.id, backgroundColor, textColor)}>
-				<HStack space="1" alignItems="center">
-					<Icon as={MaterialIcons} name="chevron-right" size="7" />
-					<VStack w="100%">
-						<Text fontWeight="500">{user.yearInReviewName ?? getTermFromDictionary(language, 'year_in_review')}</Text>
-					</VStack>
-				</HStack>
+     if (version >= '24.12.00' && shouldShowYearInReview) {
+          return (
+               <Pressable px="2" py="3" rounded="md" onPress={async () => await passUserToDiscovery(library.baseUrl, 'YearInReview', user.id, backgroundColor, textColor)}>
+                    <HStack space="1" alignItems="center">
+                         <Icon as={MaterialIcons} name="chevron-right" size="7" />
+                         <VStack w="100%">
+                              <Text fontWeight="500">{user.yearInReviewName ?? getTermFromDictionary(language, 'year_in_review')}</Text>
+                         </VStack>
+                    </HStack>
 
-				<Container>
-					<Badge colorScheme="info" ml={10} rounded="4px" _text={{ fontSize: 'xs' }}>
-						{getTermFromDictionary(language, 'view_now')}
-					</Badge>
-				</Container>
-			</Pressable>
-		);
-	}
+                    <Container>
+                         <Badge colorScheme="info" ml={10} rounded="4px" _text={{ fontSize: 'xs' }}>
+                              {getTermFromDictionary(language, 'view_now')}
+                         </Badge>
+                    </Container>
+               </Pressable>
+          );
+     }
 
-	return null;
+     return null;
 };
 
 async function getStoredNotifications() {

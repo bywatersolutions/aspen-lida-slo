@@ -524,6 +524,7 @@
   "palace_project": "Palace Project",
   "catalog_offline": "Catalog Offline",
   "catalog_offline_message": "The catalog is down for maintenance, please check back later.",
+  "unknown_login_error": "Unknown error logging in. Please check your connection and try again later.",
   "device_set_to": "Your device is set to",
   "allowed": "Allowed",
   "not_allowed": "Not allowed",

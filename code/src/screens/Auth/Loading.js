@@ -3,7 +3,7 @@ import { useIsFocused, useLinkTo, useNavigation } from '@react-navigation/native
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
-import _ from 'lodash';
+import {isEmpty, isUndefined} from 'lodash';
 import { Box, Center, Heading, Progress, VStack } from 'native-base';
 import React from 'react';
 import { checkVersion } from 'react-native-check-version';
@@ -18,6 +18,8 @@ import { LIBRARY, reloadBrowseCategories } from '../../util/loadLibrary';
 import { getBrowseCategoryListForUser, PATRON } from '../../util/loadPatron';
 import { CatalogOffline } from './CatalogOffline';
 import { ForceLogout } from './ForceLogout';
+
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../../util/logging.js';
 
 const prefix = Linking.createURL('/');
 
@@ -59,7 +61,7 @@ export const LoadingScreen = () => {
       React.useEffect(() => {
           const unsubscribe = navigation.addListener('focus', async () => {
                // The screen is focused
-               console.log('The screen is focused.');
+               logDebugMessage('The screen is focused.');
                setIsReloading(true);
                setProgress(0);
                queryClient.queryCache.clear();
@@ -99,7 +101,7 @@ export const LoadingScreen = () => {
           enabled: !!LIBRARY.url && !loadingTheme,
           onSuccess: (data) => {
                updateCatalogStatus(data);
-               if (_.isUndefined(LIBRARY.appSettings.loadingMessageType) || LIBRARY.appSettings.loadingMessageType == 0) {
+               if (isUndefined(LIBRARY.appSettings.loadingMessageType) || LIBRARY.appSettings.loadingMessageType == 0) {
                     setLoadingText(getTermFromDictionary(language ?? 'en', 'loading_1'));
                }else if (LIBRARY.appSettings.loadingMessageType == 1) {
                     setLoadingText('Loading Translations');
@@ -148,9 +150,9 @@ export const LoadingScreen = () => {
           const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
                const url = response?.notification?.request?.content?.data?.url ?? prefix;
                if (url !== incomingUrl) {
-                    console.log('Incoming url changed');
-                    console.log('OLD > ' + incomingUrl);
-                    console.log('NEW > ' + url);
+                    logInfoMessage('Incoming url changed');
+                    logDebugMessage('OLD > ' + incomingUrl);
+                    logDebugMessage('NEW > ' + url);
                     setIncomingUrl(response?.notification?.request?.content?.data?.url ?? prefix);
                     setIncomingUrlChanged(true);
                } else {
@@ -180,8 +182,9 @@ export const LoadingScreen = () => {
      const { isSuccess: userQuerySuccess, status: userQueryStatus, data: userQuery } = useQuery(['user', LIBRARY.url, 'en'], () => refreshProfile(LIBRARY.url), {
           enabled: hasError === false && librarySystemQuerySuccess,
           onSuccess: (data) => {
-               console.log(data);
-               if (_.isUndefined(data) || _.isEmpty(data)) {
+               logInfoMessage('User Profile refreshed');
+               logDebugMessage(data);
+               if (isUndefined(data) || isEmpty(data)) {
                     setHasError(true);
                } else {
                     if (data.success === false || data.success === 'false') {
@@ -236,7 +239,7 @@ export const LoadingScreen = () => {
           enabled: hasError === false && browseCategoryQuerySuccess,
           onSuccess: (data) => {
                setProgress(progress + (100 / numSteps));
-               if (_.isUndefined(LIBRARY.appSettings.loadingMessageType) || LIBRARY.appSettings.loadingMessageType == 0) {
+               if (isUndefined(LIBRARY.appSettings.loadingMessageType) || LIBRARY.appSettings.loadingMessageType == 0) {
                     setLoadingText(getTermFromDictionary(language ?? 'en', 'loading_2'));
                }else if (LIBRARY.appSettings.loadingMessageType == 1) {
                     setLoadingText('Loading Branch Information');
@@ -393,43 +396,45 @@ export const LoadingScreen = () => {
           if (hasIncomingUrlChanged) {
                let url = decodeURIComponent(incomingUrl).replace(/\+/g, ' ');
                url = url.replace('aspen-lida://', prefix);
-               console.log('incomingUrl > ' + url);
+               logDebugMessage('incomingUrl > ' + url);
                setIncomingUrlChanged(false);
                try {
-                    console.log('Trying to open screen based on incomingUrl...');
+                    logDebugMessage('Trying to open screen based on incomingUrl...');
                     Linking.openURL(url);
                } catch (e) {
-                    console.log(e);
+                    logErrorMessage("Error opening incoming url");
+                    logErrorMessage(e);
                }
           } else if (linkingUrl) {
                if (linkingUrl !== prefix && linkingUrl !== incomingUrl) {
                     setIncomingUrl(linkingUrl);
-                    console.log('Updated incoming url');
+                    logDebugMessage('Updated incoming url');
                     const { hostname, path, queryParams, scheme } = Linking.parse(linkingUrl);
-                    console.log('linkingUrl > ' + linkingUrl);
-                    console.log(`Linked to app with hostname: ${hostname}, path: ${path}, scheme: ${scheme} and data: ${JSON.stringify(queryParams)}`);
+                    logDebugMessage('linkingUrl > ' + linkingUrl);
+                    logDebugMessage(`Linked to app with hostname: ${hostname}, path: ${path}, scheme: ${scheme} and data: ${JSON.stringify(queryParams)}`);
                     try {
                          if (scheme !== 'exp') {
-                              console.log('Trying to open screen based on linkingUrl...');
+                              logDebugMessage('Trying to open screen based on linkingUrl...');
                               const url = linkingUrl.replace('aspen-lida://', prefix);
-                              console.log('url > ' + url);
+                              logDebugMessage('url > ' + url);
                               linkTo('/' + url);
                          } else {
                               if (path) {
-                                   console.log('Trying to open screen based on linkingUrl to Expo app...');
+                                   logDebugMessage('Trying to open screen based on linkingUrl to Expo app...');
                                    let url = '/' + path;
-                                   if (!_.isEmpty(queryParams)) {
+                                   if (!isEmpty(queryParams)) {
                                         const params = new URLSearchParams(queryParams);
                                         const str = params.toString();
                                         url = url + '?' + str + '&url=' + library.baseUrl;
                                    }
-                                   console.log('url > ' + url);
-                                   console.log('linkingUrl > ' + linkingUrl);
+                                   logDebugMessage('url > ' + url);
+                                   logDebugMessage('linkingUrl > ' + linkingUrl);
                                    linkTo('/' + url);
                               }
                          }
                     } catch (e) {
-                         console.log(e);
+                         logErrorMessage("Error resolving deep link");
+                         logErrorMessage(e);
                     }
                }
           }
@@ -457,7 +462,8 @@ async function checkStoreVersion() {
                };
           }
      } catch (e) {
-          console.log(e);
+          logErrorMessage("Error checking store version");
+          logErrorMessage(e);
      }
 
      return {

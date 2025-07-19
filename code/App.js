@@ -17,7 +17,9 @@ import { ThemeContext } from './src/context/initialContext';
 import { SplashScreenNative } from './src/screens/Auth/SplashNative';
 import { createTheme, saveTheme } from './src/themes/theme';
 
-//console.log("1 Enabling Screens, react-native-screens");
+import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from './src/util/logging.js';
+
+logDebugMessage("1 Enabling Screens, react-native-screens");
 enableScreens();
 
 // react query client instance
@@ -61,11 +63,11 @@ export default function AppContainer() {
 
      const glueColorMode = useColorMode();
 
-     //console.log("2 Initial setup done");
+     logDebugMessage("2 Initial setup done");
 
      React.useEffect(() => {
           const setupNativeBaseTheme = async () => {
-               //console.log('3 Running setupNativeBaseTheme...');
+               logDebugMessage('3 Running setupNativeBaseTheme...');
                try {
                     await AsyncStorage.getItem('@colorMode').then(async (mode) => {
                          if (mode === 'light' || mode === 'dark') {
@@ -77,7 +79,7 @@ export default function AppContainer() {
                          }
                     });
                } catch (e) {
-                    //console.log("4 Could not load color mode " + e);
+                    logErrorMessage("4 Could not load color mode " + e);
                     // something went wrong (or the item didn't exist yet in storage)
                     // so just set it to the default: light
                     setColorMode('light');
@@ -85,17 +87,17 @@ export default function AppContainer() {
                }
 
                if (colorMode) {
-                    //console.log("5 Creating Theme ");
+                    logDebugMessage("5 Creating Theme ");
                     await createTheme(colorMode).then(async (result) => {
-                         //console.log("5a retrieved data from createTheme");
+                         logDebugMessage("5a retrieved data from createTheme");
                          setAspenTheme(result);
-                         //console.log("5b Set Aspen Theme");
+                         logDebugMessage("5b Set Aspen Theme");
                          if (result.colors?.primary['baseContrast'] === '#000000') {
                               setStatusBarColor('dark-content');
                          } else {
                               setStatusBarColor('light-content');
                          }
-                         //console.log("5c Saving Theme");
+                         logDebugMessage("5c Saving Theme");
                          await saveTheme(result);
                     });
 
@@ -108,16 +110,10 @@ export default function AppContainer() {
      }, [colorMode, mode]);
 
      if (isLoading) {
-          //console.log("6 Still loading, showing splash screen");
+          logDebugMessage("6 Still loading, showing splash screen");
           return <SplashScreenNative />;
      }else{
-          //console.log("7 Loading main page");
-          //console.log("queryClient");
-          //console.log(queryClient);
-          //console.log("config:");
-          //console.log(config);
-          //console.log("aspenTheme:" + aspenTheme);
-          //console.log("statusBarColor:" + statusBarColor);
+          logDebugMessage("7 Loading main page");
           return (
                <QueryClientProvider client={queryClient}>
                     <Sentry.TouchEventBoundary>
