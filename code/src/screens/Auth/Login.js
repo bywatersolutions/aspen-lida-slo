@@ -198,7 +198,7 @@ export const LoginScreen = () => {
                          </Button>
                     ) : null}
                     <Center>
-                         <Text mt="$5" fontSize="xs" color={textColor}>
+                         <Text mt="$5" fontSize="$xs" color={textColor}>
                               {GLOBALS.appVersion} {GLOBALS.appStage} b[{GLOBALS.appBuild}] p[{GLOBALS.appPatch}] c[{GLOBALS.releaseChannel ?? 'Development'}]
                          </Text>
                     </Center>

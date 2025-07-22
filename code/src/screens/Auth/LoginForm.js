@@ -213,7 +213,7 @@ export const GetLoginForm = (props) => {
                {loginError ? <DisplayMessage type="error" message={loginErrorMessage} /> : null}
                <FormControl>
                     <FormControlLabel>
-                         <FormControlLabelText fontSize="sm" color={textColor}>{usernameLabel}</FormControlLabelText>
+                         <FormControlLabelText fontSize="$sm" color={textColor}>{usernameLabel}</FormControlLabelText>
                     </FormControlLabel>
                     <Input>
                          <InputField autoCapitalize="none"

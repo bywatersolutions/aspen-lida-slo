@@ -142,7 +142,7 @@ export const ForgotBarcode = (props) => {
                                         <Text color={textColor}>{modalBody}</Text>
                                         <FormControl>
                                              <FormControlLabel>
-                                                  <FormControlLabelText fontSize="sm" color={textColor}>{fieldLabel}</FormControlLabelText>
+                                                  <FormControlLabelText fontSize="$sm" color={textColor}>{fieldLabel}</FormControlLabelText>
                                              </FormControlLabel>
                                              <Input><InputField id="phoneNumber" variant="filled" size="xl" returnKeyType="done" enterKeyHint="done" onChangeText={(text) => setPhoneNumber(text)} onSubmitEditing={() => initiateForgotBarcode()} color={textColor} textContentType="telephoneNumber"/></Input>
                                         </FormControl>
