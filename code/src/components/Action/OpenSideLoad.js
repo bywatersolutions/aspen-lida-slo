@@ -11,18 +11,11 @@ export const OpenSideLoad = (props) => {
 
      return (
           <Button
+               size="md"
+               bgColor={theme['colors']['primary']['500']}
+               variant="solid"
                minWidth="100%"
                maxWidth="100%"
-               size="md"
-               _text={{
-                    padding: 0,
-                    textAlign: 'center',
-               }}
-               style={{
-                    flex: 1,
-                    flexWrap: 'wrap',
-               }}
-               bgColor={theme['colors']['primary']['500']}
                onPress={async () => {
                     setLoading(true);
                     await openSideLoad(props.url).then((r) => setLoading(false));
