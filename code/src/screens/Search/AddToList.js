@@ -129,11 +129,8 @@ export const AddToList = (props) => {
                                    <>
                                         <HStack
                                              p="$4"
-                                             borderBottomWidth="$1"
                                              justifyContent="space-between"
                                              alignItems="flex-start"
-                                             bgColor={colorMode === 'light' ? theme['colors']['muted']['50'] : theme['colors']['muted']['800']}
-                                             borderColor={colorMode === 'light' ? theme['colors']['muted']['300'] : theme['colors']['muted']['700']}
                                            >
                                              <Text bold color={textColor}>{getTermFromDictionary(language, 'add_to_list')}</Text>
                                              <Pressable onPress={() => setOpen(false)}>
@@ -159,21 +156,21 @@ export const AddToList = (props) => {
                                                                  onValueChange={(itemValue) => {
                                                                       setListId(itemValue);
                                                                  }}>
-                                                                 <SelectTrigger variant="outline" size="sm" borderWidth={colorMode === 'light' ? '$none' : '$1'}
+                                                                 <SelectTrigger borderWidth={colorMode === 'light' ? '$none' : '$1'}
                                                                                 borderColor={colorMode === 'light' ? '$none' : theme['colors']['gray']['400']}>
-                                                                      <SelectInput color={textColor} placeholder="Select option" />
+                                                                      <SelectInput color={textColor} placeholder="Select list" />
                                                                       <SelectIcon mr="$3">
                                                                            <Icon color={textColor} as={ChevronDownIcon} />
                                                                       </SelectIcon>
                                                                  </SelectTrigger>
-                                                                 <SelectPortal useRNModal={true}>
+                                                                 <SelectPortal useRNModal={true} >
                                                                       <SelectBackdrop />
-                                                                      <SelectContent>
+                                                                      <SelectContent bgColor={colorMode === 'light' ? theme['colors']['warmGray']['50'] : theme['colors']['coolGray']['700']}>
                                                                            <SelectDragIndicatorWrapper>
                                                                                 <SelectDragIndicator />
                                                                            </SelectDragIndicatorWrapper>
                                                                            {_.map(lists, function (item, index, array) {
-                                                                                return <SelectItem key={index} value={item.id} label={item.title} />;
+                                                                                return <SelectItem key={index} value={item.id} label={item.title} bgColor={listId == item.id ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: listId == item.id ? theme['colors']['tertiary']['500-text'] : textColor } }} />;
                                                                            })}
                                                                       </SelectContent>
                                                                  </SelectPortal>
@@ -198,10 +195,7 @@ export const AddToList = (props) => {
                                              p="$4"
                                              flexDirection="row"
                                              justifyContent="flex-end"
-                                             flexWrap="wrap"
-                                             bgColor={colorMode === 'light' ? theme['colors']['muted']['50'] : theme['colors']['muted']['800']}
-                                             borderTopWidth="$1"
-                                             borderColor={colorMode === 'light' ? theme['colors']['muted']['300'] : theme['colors']['muted']['700']}>
+                                             flexWrap="wrap">
                                              <Button
                                                   borderColor={theme['colors']['primary']['500']}
                                                   variant="outline"
@@ -237,9 +231,6 @@ export const AddToList = (props) => {
                                              justifyContent="space-between"
                                              alignItems="flex-start"
                                              p="$4"
-                                             borderBottomWidth="$1"
-                                             bgColor={colorMode === 'light' ? theme['colors']['muted']['50'] : theme['colors']['muted']['800']}
-                                             borderColor={colorMode === 'light' ? theme['colors']['muted']['300'] : theme['colors']['muted']['700']}
                                         >
                                              <Text bold color={textColor}>{getTermFromDictionary(language, 'create_new_list_item')}</Text>
                                              <Pressable onPress={() => setOpen(false)}>
@@ -257,13 +248,13 @@ export const AddToList = (props) => {
                                              <VStack space="md">
                                                   <FormControl>
                                                        <FormControlLabel><FormControlLabelText color={textColor}>{getTermFromDictionary(language, 'title')}</FormControlLabelText></FormControlLabel>
-                                                       <Input>
+                                                       <Input borderColor={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']}>
                                                             <InputField id="title" onChangeText={(text) => saveTitle(text)} returnKeyType="next" color={textColor}/>
                                                        </Input>
                                                   </FormControl>
                                                   <FormControl>
                                                        <FormControlLabel><FormControlLabelText color={textColor}>{getTermFromDictionary(language, 'description')}</FormControlLabelText></FormControlLabel>
-                                                       <Textarea id="description" onChangeText={(text) => saveDescription(text)} returnKeyType="next"><TextareaInput color={textColor}/></Textarea>
+                                                       <Textarea id="description" onChangeText={(text) => saveDescription(text)} returnKeyType="next" borderColor={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']}><TextareaInput color={textColor}/></Textarea>
                                                   </FormControl>
                                                   <FormControl>
                                                        <FormControlLabel><FormControlLabelText color={textColor}>{getTermFromDictionary(language, 'access')}</FormControlLabelText></FormControlLabel>
@@ -272,16 +263,16 @@ export const AddToList = (props) => {
                                                             onChange={(nextValue) => {
                                                                  saveIsPublic(nextValue);
                                                             }}>
-                                                            <HStack direction="row" alignItems="center" space={4} w="75%" maxW="300px">
+                                                            <HStack direction="row" alignItems="center" space="md" w="75%" maxW="300px">
                                                                  <Radio value="1" my="$1">
-                                                                      <RadioIndicator mr="$2">
-                                                                           <RadioIcon as={CircleIcon} strokeWidth={1} />
+                                                                      <RadioIndicator mr="$2" borderColor={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']}>
+                                                                           <RadioIcon as={CircleIcon} color={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']} />
                                                                       </RadioIndicator>
                                                                       <RadioLabel color={textColor}>{getTermFromDictionary(language, 'private')}</RadioLabel>
                                                                  </Radio>
                                                                  <Radio value="0" my="$1">
-                                                                      <RadioIndicator mr="$2">
-                                                                           <RadioIcon as={CircleIcon} strokeWidth={1} />
+                                                                      <RadioIndicator mr="$2" borderColor={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']}>
+                                                                           <RadioIcon as={CircleIcon} color={colorMode === 'light' ? theme['colors']['coolGray']['500'] : theme['colors']['gray']['300']} />
                                                                       </RadioIndicator>
                                                                       <RadioLabel color={textColor}>{getTermFromDictionary(language, 'public')}</RadioLabel>
                                                                  </Radio>
@@ -295,9 +286,6 @@ export const AddToList = (props) => {
                                              flexDirection="row"
                                              justifyContent="flex-end"
                                              flexWrap="wrap"
-                                             bgColor={colorMode === 'light' ? theme['colors']['muted']['50'] : theme['colors']['muted']['800']}
-                                             borderTopWidth="$1"
-                                             borderColor={colorMode === 'light' ? theme['colors']['muted']['300'] : theme['colors']['muted']['700']}
                                         >
                                              <Button
                                                   variant="outline"
