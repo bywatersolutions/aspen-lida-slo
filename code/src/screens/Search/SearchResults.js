@@ -262,7 +262,7 @@ const DisplayResult = (data) => {
           }
      };
 
-     const formats = item?.itemList ?? [];;
+     const formats = item?.itemList ?? [];
 
      function getFormat(n) {
 
