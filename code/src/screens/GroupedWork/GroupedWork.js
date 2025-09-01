@@ -52,7 +52,7 @@ export const GroupedWorkScreen = () => {
                                    updateLibraryCards(result.cards);
                               }
                          });
-                         await getPickupLocations(library.baseUrl).then((result) => {
+                         await getPickupLocations(library.baseUrl, id).then((result) => {
                               if (locations !== result) {
                                    updatePickupLocations(result);
                               }

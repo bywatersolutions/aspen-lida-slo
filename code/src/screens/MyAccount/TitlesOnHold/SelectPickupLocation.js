@@ -36,6 +36,7 @@ import { getTermFromDictionary } from '../../../translations/TranslationService'
 
 import { changeHoldPickUpLocation } from '../../../util/accountActions';
 import {SelectExistingHoldSubLocation} from './SelectExistingHoldSubLocation';
+import {ScrollView} from "native-base";
 
 export const SelectPickupLocation = (props) => {
      const { locations, sublocations, onClose, currentPickupId, holdId, userId, libraryContext, holdsContext, resetGroup, language, textColor, colorMode, theme } = props;
@@ -136,12 +137,14 @@ export const SelectPickupLocation = (props) => {
                                                        <SelectDragIndicatorWrapper>
                                                             <SelectDragIndicator />
                                                        </SelectDragIndicatorWrapper>
-                                                       {locations.map((item, index) => {
-                                                            const locationId = item.locationId;
-                                                            const code = item.code;
-                                                            const id = locationId.concat('_', code);
-                                                            return <SelectItem value={id} label={item.name}  bgColor={location === (id) ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: location === (id) ? theme['colors']['tertiary']['500-text'] : textColor } }}/>;
-                                                       })}
+                                                       <ScrollView style={{ maxHeight: 400 }}>
+                                                            {locations.map((item, index) => {
+                                                                 const locationId = item.locationId;
+                                                                 const code = item.code;
+                                                                 const id = locationId.concat('_', code);
+                                                                 return <SelectItem value={id} label={item.name} key={index}  bgColor={location === (id) ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: location === (id) ? theme['colors']['tertiary']['500-text'] : textColor } }}/>;
+                                                            })}
+                                                       </ScrollView>
                                                   </SelectContent>
                                              </SelectPortal>
                                         </Select>

@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import { Image } from 'expo-image';
 import _ from 'lodash';
 import { Actionsheet, ActionsheetItem, ActionsheetBackdrop, ActionsheetContent, ActionsheetItemText, ActionsheetDragIndicatorWrapper, ActionsheetDragIndicator, Box, Button, ButtonText, Center, Checkbox, CheckboxIndicator, CheckboxIcon, CheckIcon, HStack, Icon, Pressable, ActionsheetIcon, VStack } from '@gluestack-ui/themed';
@@ -10,7 +10,7 @@ import { getAuthor, getBadge, getCleanTitle, getExpirationDate, getFormat, getOn
 import { navigateStack } from '../../../helpers/RootNavigator';
 import { getTermFromDictionary } from '../../../translations/TranslationService';
 import { cancelHold, cancelHolds, cancelVdxRequest, freezeHold, freezeHolds, thawHold, thawHolds } from '../../../util/accountActions';
-import { formatDiscoveryVersion } from '../../../util/loadLibrary';
+import {formatDiscoveryVersion, getPickupLocations} from '../../../util/loadLibrary';
 import { checkoutItem } from '../../../util/recordActions';
 import { SelectPickupLocation } from './SelectPickupLocation';
 import { SelectThawDate } from './SelectThawDate.js';
@@ -24,7 +24,7 @@ export const MyHold = (props) => {
      const hold = props.data;
      const holdSource = props.holdSource
      const resetGroup = props.resetGroup;
-     const pickupLocations = props.pickupLocations;
+     const [pickupLocations, setPickupLocations] = React.useState([]);
      const sublocations = PATRON.sublocations;
      const section = props.section;
      const { user } = React.useContext(UserContext);
@@ -54,6 +54,16 @@ export const MyHold = (props) => {
                     setHoldPosition(tmp);
                }
           }
+          const update = async () => {
+               await getPickupLocations(library.baseUrl, null, hold.id).then((result) => {
+                    if (pickupLocations !== result) {
+                         setPickupLocations(result);
+                    }
+               });
+          };
+          update().then(() => {
+               return () => update();
+          });
      }, [language]);
 
      if (hold.canFreeze === true) {

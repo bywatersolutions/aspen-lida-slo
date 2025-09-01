@@ -177,7 +177,7 @@ export async function getLocationAppSettings(url, timeout, slug) {
 /**
  * Fetch valid pickup locations for the patron
  **/
-export async function getPickupLocations(url = null) {
+export async function getPickupLocations(url = null, groupedWorkId = null, recordId = null) {
      //console.log("Getting pickup locations");
      let baseUrl = url ?? LIBRARY.url;
      const postBody = await postData();
@@ -186,6 +186,10 @@ export async function getPickupLocations(url = null) {
           timeout: GLOBALS.timeoutAverage,
           headers: getHeaders(true),
           auth: createAuthTokens(),
+          params: {
+               groupedWorkId,
+               recordId,
+          }
      });
      const response = await api.post('/UserAPI?method=getValidPickupLocations', postBody);
 
