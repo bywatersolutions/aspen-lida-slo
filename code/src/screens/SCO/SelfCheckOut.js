@@ -308,9 +308,6 @@ export const SelfCheckOut = () => {
                <Heading size="md" pb="$2" color={textColor}>
                     {getTermFromDictionary(language, 'checked_out_during_session')}
                </Heading>
-               <Center>
-                    <Text pb="$5" color={textColor}>{completionMessage}</Text>
-               </Center>
                {isProcessingCheckout ? (
                    <Center>
                         <Text pb="$5" color={textColor}>{getTermFromDictionary(language, 'processing_checkout_message')}</Text>
