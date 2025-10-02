@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { ChevronLeftIcon, CloseIcon, Pressable } from 'native-base';
 import React from 'react';
 import { PalaceProjectInstructions } from '../../components/Action/CheckOut/PalaceProjectInstructions';
-import { LanguageContext } from '../../context/initialContext';
+import { LanguageContext, ThemeContext } from '../../context/initialContext';
 import { EventScreen } from '../../screens/Event/Event';
 import { CreateVDXRequest } from '../../screens/GroupedWork/CreateVDXRequest';
 import { CreateLocalIllRequest } from '../../screens/GroupedWork/CreateLocalIllRequest';
@@ -16,7 +16,7 @@ import { MyCheckouts } from '../../screens/MyAccount/CheckedOutTitles/MyCheckout
 import { MyEvents } from '../../screens/MyAccount/Events/Events';
 import { MyList } from '../../screens/MyAccount/Lists/MyList';
 import { MyLists } from '../../screens/MyAccount/Lists/MyLists';
-import { MyNotificationHistoryMessage } from '../../screens/MyAccount/NotificationHistory/NotificationHistoryMessage';
+import { NotificationHistoryMessageModal } from '../../screens/MyAccount/NotificationHistory/NotificationHistoryMessage';
 import { MyNotificationHistory } from '../../screens/MyAccount/NotificationHistory/NotificationHistory';
 import { MyProfile } from '../../screens/MyAccount/Profile/MyProfile';
 import { MyReadingHistory } from '../../screens/MyAccount/ReadingHistory/ReadingHistory';
@@ -37,6 +37,7 @@ import TitleWithLogo from '../../components/TitleWithLogo'
 
 const AccountStackNavigator = () => {
      const { language } = React.useContext(LanguageContext);
+     const { theme } = React.useContext(ThemeContext);
      const Stack = createNativeStackNavigator();
      return (
           <Stack.Navigator
@@ -330,11 +331,22 @@ const AccountStackNavigator = () => {
                />
                <Stack.Screen
                     name="MyNotificationHistoryMessageModal"
-                    component={MyNotificationHistoryMessageModal}
-                    options={{
-                         headerShown: false,
+                    component={NotificationHistoryMessageModal}
+                    options={({ navigation }) => ({
+                         title: getTermFromDictionary(language, 'notification'),
+                         headerShown: true,
                          presentation: 'modal',
-                    }}
+                         headerStyle: {
+                              backgroundColor: theme['colors']['primary']['500'],
+                         },
+                         headerTintColor: theme['colors']['primary']['500-text'],
+                         headerLeft: () => null,
+                         headerRight: () => (
+                              <Pressable onPress={() => navigation.goBack()} mr={3} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                                   <CloseIcon size={5} color={theme['colors']['primary']['500-text']} />
+                              </Pressable>
+                         ),
+                    })}
                />
                <Stack.Screen
                     name="LoadSavedSearch"
@@ -423,6 +435,7 @@ export const PalaceProjectInstructionsModal = () => {
 const MyNotificationHistoryMessageStack = createNativeStackNavigator();
 export const MyNotificationHistoryMessageModal = () => {
      const { language } = React.useContext(LanguageContext);
+     const { theme } = React.useContext(ThemeContext);
      return (
           <MyNotificationHistoryMessageStack.Navigator
                id="MyNotificationHistoryMessageStack"
@@ -433,11 +446,15 @@ export const MyNotificationHistoryMessageModal = () => {
                })}>
                <MyNotificationHistoryMessageStack.Screen
                     name="MyNotificationHistoryMessage"
-                    component={MyNotificationHistoryMessage}
+                    component={NotificationHistoryMessageModal}
                     options={{
                          title: getTermFromDictionary(language, 'my_message'),
                          headerShown: true,
                          presentation: 'card',
+                         headerStyle: {
+                              backgroundColor: theme['colors']['primary']['500'],
+                         },
+                         headerTintColor: theme['colors']['primary']['500-text'],
                     }}
                />
           </MyNotificationHistoryMessageStack.Navigator>

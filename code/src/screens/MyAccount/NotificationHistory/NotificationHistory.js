@@ -14,6 +14,7 @@ import { getTermFromDictionary } from '../../../translations/TranslationService'
 import { fetchSavedEvents } from '../../../util/api/event';
 import { stripHTML } from '../../../util/apiAuth';
 import { CommonActions } from '@react-navigation/native';
+import { fetchNotificationHistory } from '../../../util/api/user';
 
 export const MyNotificationHistory = () => {
      const navigation = useNavigation();
@@ -46,7 +47,7 @@ export const MyNotificationHistory = () => {
           }
      }, [systemMessages]);
 
-     const { status, data, error, isFetching, isPreviousData } = useQuery(['notification_history', user.id, library.baseUrl, page], () => fetchSavedEvents(page, pageSize, library.baseUrl), {
+     const { status, data, error, isFetching, isPreviousData } = useQuery(['notification_history', user.id, library.baseUrl, page], () => fetchNotificationHistory(1, 20, false, library.baseUrl, language), {
           initialData: notificationHistory,
           keepPreviousData: true,
           staleTime: 1000,
@@ -57,7 +58,6 @@ export const MyNotificationHistory = () => {
                     let tmp = getTermFromDictionary(language, 'page_of_page');
                     tmp = tmp.replace('%1%', page);
                     tmp = tmp.replace('%2%', data.totalPages);
-                    console.log(tmp);
                     setPaginationLabel(tmp);
                }
           },
@@ -146,7 +146,6 @@ const Item = (data) => {
      const handleOpenMyMessage = data.handleOpenMyMessage;
      let content = stripHTML(message.content);
      content = _.truncate(content, { length: 35 });
-
      return (
           <Pressable onPress={() => handleOpenMyMessage(message)} borderBottomWidth="$1" borderColor={colorMode === 'light' ? theme['colors']['warmGray']['300'] : theme['colors']['coolGray']['500']} pl="$4" pr="$5" py="$2">
                <HStack alignItems="start">

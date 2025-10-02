@@ -17,62 +17,50 @@ import { popAlert, popToast } from './loadError';
 import { logDebugMessage, logInfoMessage, logWarnMessage, logErrorMessage } from '../util/logging.js';
 
 export async function registerForPushNotificationsAsync(url) {
-     let token = false;
-     let checkPermissionsManually = false;
-     if (Device.isDevice) {
-          logDebugMessage("Platform OS is : " + Platform.OS);
-          if (Platform.OS === 'android') {
-               await createChannelsAndCategories();
-               logDebugMessage("Device OS Version is : " + Device.osVersion);
-               if (Device.osVersion < 13) {
-                    checkPermissionsManually = true;
+     try {
+          // For simulator
+          if (!Device.isDevice) {
+               logDebugMessage("Running on simulator - using development notification setup");
+               const { status } = await Notifications.getPermissionsAsync();
+               if (status === 'granted') {
+                    return 'ExponentPushToken[simulator-test-token]';
                }
-          } else {
-               checkPermissionsManually = true;
-          }
-
-          if (checkPermissionsManually) {
-               const { status: existingStatus } = await Notifications.getPermissionsAsync();
-               logDebugMessage('Notification status is: ' + existingStatus);
-               let finalStatus = existingStatus;
-               if (existingStatus !== 'granted') {
-                    if (Platform.OS !== 'android') {
-                         const { status } = await Notifications.requestPermissionsAsync();
-                         finalStatus = status;
-                    }
-               }
-               if (finalStatus !== 'granted') {
-                    logWarnMessage('Failed to get push token for push notification!');
-                    return false;
-               }
-          }
-
-          try {
-               token = (
-                    await Notifications.getExpoPushTokenAsync({
-                         projectId: Constants.expoConfig.extra.eas.projectId,
-                    })
-               ).data;
-          } catch (e) {
-               logErrorMessage("Error getting push token");
-               logErrorMessage(e);
                return false;
           }
 
-          logDebugMessage('token: ' + token);
+          // For real devices
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
 
-          if (token) {
-               await savePushToken(url, token);
+          // Only ask for permissions if not already granted
+          if (existingStatus !== 'granted') {
+               logDebugMessage("Requesting notification permissions...");
+               // Call requestPermissionsAsync without any parameters
+               const { status } = await Notifications.requestPermissionsAsync();
+               finalStatus = status;
           }
-     } else {
-          logDebugMessage('Creating a fake token for simulators...');
-          token = await Notifications.getExpoPushTokenAsync({
+
+          if (finalStatus !== 'granted') {
+               logWarnMessage('Failed to get push notification permissions');
+               return false;
+          }
+
+          // Create notification channels for Android
+          if (Platform.OS === 'android') {
+               await createChannelsAndCategories();
+          }
+
+          // Get the token
+          const response = await Notifications.getExpoPushTokenAsync({
                projectId: Constants.expoConfig.extra.eas.projectId,
           });
-          return token;
-     }
 
-     return token;
+          logDebugMessage('Got push token:', response.data);
+          return response.data;
+     } catch (error) {
+          logErrorMessage("Error in registerForPushNotificationsAsync:", error);
+          return false;
+     }
 }
 
 export async function savePushToken(url, pushToken) {
