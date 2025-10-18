@@ -4,8 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import * as Calendar from 'expo-calendar';
 import * as WebBrowser from 'expo-web-browser';
-
-import _, from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import {
      useToast,
