@@ -666,5 +666,8 @@
   "nest_within_group_no":"No, do not nest within another group",
   "choose_existing_list_group": "Choose a List Group",
   "create_new_list_group": "Create New List Group",
-  "create_list_group": "Create List Group"
+  "create_list_group": "Create List Group",
+  "rename_list_group": "Rename List Group",
+  "move_list_group": "Move List Group",
+  "delete_list_group": "Delete List Group"
 }
