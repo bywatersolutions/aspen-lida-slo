@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { LanguageContext, LibrarySystemContext, ThemeContext, UserContext } from '../../../context/initialContext';
@@ -21,6 +22,8 @@ export const EditListGroupParent = ({id, parentId, handleUpdate}) => {
      const [loading, setLoading] = React.useState(false);
 
      const [newListGroupParentId, setNewListGroupParentId] = React.useState(parentId); // default state is current list group parent id
+
+     const insets = useSafeAreaInsets();
 
      const toggle = () => {
           setShowModal(!showModal);

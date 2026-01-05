@@ -43,6 +43,7 @@ import {
      Select,
 } from '@gluestack-ui/themed';
 import React, { useState } from 'react';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { popAlert } from '../../../components/loadError';
 import { LanguageContext, LibrarySystemContext, ThemeContext, UserContext } from '../../../context/initialContext';
@@ -69,6 +70,8 @@ const CreateList = (props) => {
      const [newGroupName, setNewGroupName] = React.useState('');
      const [nestedGroup, setNestedGroup] = React.useState('');
      const [existingGroupId, setExistingGroupId] = React.useState(user.lastListGroupAdded ? user.lastListGroupAdded : listGroups.groups[0].id);
+
+     const insets = useSafeAreaInsets();
 
      let hasListGroups = false;
      if(user.numListGroups) {

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Badge, BadgeText, Box, Center, ChevronDownIcon, FlatList, Heading, HStack, Pressable, ScrollView, Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragIndicatorWrapper, SelectIcon, SelectInput, SelectItem, SelectPortal, SelectTrigger, Text, VStack } from '@gluestack-ui/themed';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // custom components and helper files
 import { loadingSpinner } from '../../../components/loadingSpinner';
@@ -39,6 +39,8 @@ export const MyLists = () => {
      const { systemMessages, updateSystemMessages } = React.useContext(SystemMessagesContext);
 
      const { theme, textColor, colorMode } = React.useContext(ThemeContext);
+
+     const insets = useSafeAreaInsets();
 
      const [currentListGroup, setCurrentListGroup] = React.useState(-1);
      const [currentListGroupData, setCurrentListGroupData] = React.useState({
