@@ -275,7 +275,7 @@ export const MyLists = () => {
                          <ScrollView horizontal>
                               <ButtonGroup space="sm">
                                    <CreateList setLoading={setLoading} />
-                                   <CreateListGroup setLoading={setLoading} />
+                                   <CreateListGroup setLoading={setLoading} updateSelectedListGroup={updateSelectedListGroup} />
                               </ButtonGroup>
                          </ScrollView>
                     </Box>
@@ -323,7 +323,7 @@ export const MyLists = () => {
                                              </ScrollView>
                                         )}
                                         </Box>
-                                        <FlatList mt="$2" data={currentListGroupData.listsInGroup} renderItem={({ item }) => renderList(item, library.baseUrl)} keyExtractor={(item, index) => index.toString()} ListEmptyComponent={listEmptyComponent} />
+                                        <FlatList contentContainerStyle={{ paddingBottom: 200 }} mt="$2" data={currentListGroupData.listsInGroup} renderItem={({ item }) => renderList(item, library.baseUrl)} keyExtractor={(item, index) => index.toString()} ListEmptyComponent={listEmptyComponent} />
                                    </Box>
                               ) : null}
                          </Box>

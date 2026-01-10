@@ -67,6 +67,7 @@ import {
      Select,
 } from '@gluestack-ui/themed';
 import {Platform} from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const EditList = (props) => {
      const queryClient = useQueryClient();
@@ -83,6 +84,8 @@ const EditList = (props) => {
      const [isPublic, setPublic] = React.useState(data.public);
      const [listGroupId, setListGroupId] = React.useState(data.listGroupId);
      const { theme, textColor, colorMode } = React.useContext(ThemeContext);
+
+     const insets = useSafeAreaInsets();
 
      useQuery(['list-details', data.id], () => getListDetails(data.id, library.baseUrl), {
           onSuccess: (data) => {

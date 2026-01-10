@@ -90,7 +90,7 @@ const CreateList = (props) => {
           setNestedGroup('');
           setExistingGroupId(user.lastListGroupAdded ? user.lastListGroupAdded : (listGroups?.groups[0] ? listGroups.groups[0].id : 0));
      };
-
+     
      return (
           <Center>
                <Button onPress={toggle} size="sm" bgColor={theme['colors']['primary']['500']}>
@@ -173,9 +173,9 @@ const CreateList = (props) => {
                                                   <SelectDragIndicatorWrapper>
                                                        <SelectDragIndicator />
                                                   </SelectDragIndicatorWrapper>
-                                                  <SelectItem label={getTermFromDictionary(language, 'add_to_list_group_no')} value="no" key={1} sx={{ _text: { color: textColor } }} />
-                                                  <SelectItem label={getTermFromDictionary(language, 'add_to_list_group_new')} value="new" key={2} sx={{ _text: { color: textColor } }} />
-                                                  {hasListGroups && (<SelectItem label={getTermFromDictionary(language, 'add_to_list_group_existing')} value="existing" key={3} sx={{ _text: { color: textColor } }} />)}
+                                                  <SelectItem label={getTermFromDictionary(language, 'add_to_list_group_no')} value="no" key={1} bgColor={addToGroup === "no" ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: addToGroup === "no" ? theme['colors']['tertiary']['500-text'] : textColor } }} />
+                                                  <SelectItem label={getTermFromDictionary(language, 'add_to_list_group_new')} value="new" key={2} bgColor={addToGroup === "new" ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: addToGroup === "new" ? theme['colors']['tertiary']['500-text'] : textColor } }} />
+                                                  {hasListGroups && (<SelectItem label={getTermFromDictionary(language, 'add_to_list_group_existing')} value="existing" key={3} bgColor={addToGroup === "existing" ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: addToGroup === "existing" ? theme['colors']['tertiary']['500-text'] : textColor } }} />)}
                                              </SelectContent>
                                         </SelectPortal>
                                    </Select>
@@ -217,7 +217,7 @@ const CreateList = (props) => {
                                                        <SelectDragIndicatorWrapper>
                                                             <SelectDragIndicator />
                                                        </SelectDragIndicatorWrapper>
-                                                       <SelectItem label={getTermFromDictionary(language, 'nest_within_group_no')} value="no" key={1} sx={{ _text: { color: textColor } }} />
+                                                       <SelectItem label={getTermFromDictionary(language, 'nest_within_group_no')} value="no" key={1} bgColor={nestedGroup === "no" ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: nestedGroup === "no" ? theme['colors']['tertiary']['500-text'] : textColor } }} />
                                                        {_.map(Object.values(listGroups.groups), function (item, index, array) {
                                                             return <SelectItem key={index} value={item.id} label={item.title} bgColor={nestedGroup === item.id ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: nestedGroup === item.id ? theme['colors']['tertiary']['500-text'] : textColor } }} />;
                                                        })}

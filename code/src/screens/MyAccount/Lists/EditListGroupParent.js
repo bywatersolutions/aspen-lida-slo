@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
@@ -21,9 +21,25 @@ export const EditListGroupParent = ({id, parentId, handleUpdate}) => {
      const [showModal, setShowModal] = React.useState(false);
      const [loading, setLoading] = React.useState(false);
 
+     const [selectedGroup, setSelectedGroup] = React.useState(null);
      const [newListGroupParentId, setNewListGroupParentId] = React.useState(parentId); // default state is current list group parent id
 
      const insets = useSafeAreaInsets();
+
+     React.useEffect(() => {
+          if (listGroups && listGroups.groups && parentId != null) {
+               const found = _.find(Object.values(listGroups.groups), { id: parentId }) || null;
+               setSelectedGroup(found);
+          } else {
+               setSelectedGroup(null);
+          }
+     }, [listGroups.groups, parentId]);
+
+     const updateSelectedGroup = (groupId) => {
+          const group = _.find(Object.values(listGroups.groups), { id: groupId });
+          setSelectedGroup(group);
+          setNewListGroupParentId(groupId);
+     }
 
      const toggle = () => {
           setShowModal(!showModal);
@@ -53,10 +69,12 @@ export const EditListGroupParent = ({id, parentId, handleUpdate}) => {
                                         name="newListGroupParent"
                                         selectedValue={newListGroupParentId}
                                         accessibilityLabel={getTermFromDictionary(language, 'move_list_group_to')}
-                                        onValueChange={(itemValue) => setNewListGroupParentId(itemValue)}>
+                                        onValueChange={(itemValue) => updateSelectedGroup(itemValue)}>
                                         <SelectTrigger variant="outline" size="md">
-                                             <SelectInput color={textColor} value={newListGroupParentId} />
-                                             <SelectIcon mr="$3" as={ChevronDownIcon} color={textColor} />
+                                             {selectedGroup ? (
+                                                  <SelectInput color={textColor} value={selectedGroup.id} placeholder={selectedGroup.title} />
+                                             ) : <SelectInput color={textColor} value={parentId} />}
+                                           <SelectIcon mr="$3" as={ChevronDownIcon} color={textColor} />
                                         </SelectTrigger>
                                         <SelectPortal>
                                              <SelectBackdrop />
@@ -68,6 +86,9 @@ export const EditListGroupParent = ({id, parentId, handleUpdate}) => {
                                                        <SelectDragIndicator />
                                                   </SelectDragIndicatorWrapper>
                                                   {_.map(listGroups.groups, function (item, index, array) {
+                                                       if(item.id === id || item.id === parentId || item.parentGroupId === id) {
+                                                            return null;
+                                                       }
                                                        return <SelectItem key={index} value={item.id} label={item.title} bgColor={newListGroupParentId === item.id ? theme['colors']['tertiary']['300'] : ''} sx={{ _text: { color: newListGroupParentId === item.id ? theme['colors']['tertiary']['500-text'] : textColor } }} />;
                                                   })}
                                              </SelectContent>
