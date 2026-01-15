@@ -44,6 +44,7 @@ const DisplayBrowseCategory = ({category}) => {
      const displayedData = hasMore ? records.slice(0, maxItems) : records;
 
      const isSystemBrowseCategory = category.textId === 'system_user_lists' || category.textId === 'system_saved_searches' || category.textId === 'system_recommended_for_you';
+     const isListSource = category.source === 'List';
 
      let subCategoryRecords = [];
      let subCategoryHasMore = false;
@@ -52,6 +53,8 @@ const DisplayBrowseCategory = ({category}) => {
           subCategoryHasMore = allRecords.length > maxItems;
           subCategoryRecords = subCategoryHasMore ? allRecords.slice(0, maxItems) : allRecords;
      }
+
+     const id = isListSource ? category.sourceListId : category.textId;
 
      const onPressHide = async (textId) => {
           await updateBrowseCategoryStatus(textId, library.baseUrl).then(async (response) => {
@@ -87,7 +90,7 @@ const DisplayBrowseCategory = ({category}) => {
           <SafeAreaView>
                <View pb="$3">
                     <HStack space="$3" alignItems="center" justifyContent="space-between" pb="$2">
-                         <DisplayBrowseCategoryTitle category={category.label} key={category.id} textId={category.textId} source={category.source ?? 'GroupedWork'} />
+                         <DisplayBrowseCategoryTitle category={category.label} key={category.id} textId={id} source={category.source ?? 'GroupedWork'} />
                          {subCategories.length > 0 ? (
                               <Button variant="outline" size="xs" borderColor={theme['colors']['primary']['500']} sx={{ paddingHorizontal: 6, paddingVertical: 0, height: 24 }} onPress={() => onPressHideAll(category.textId)}>
                                    <ButtonIcon as={MaterialIcons} name="close" color={theme['colors']['primary']['500']} mr="$1" />
@@ -134,29 +137,8 @@ const DisplayBrowseCategoryTitle = ({category, textId, source}) => {
           });
      };
 
-     if(isSystemCategory) {
-          return (
-               <Box maxWidth="80%">
-                    <Text
-                         color={colorMode === 'light' ? theme['colors']['gray']['800'] : theme['colors']['coolGray']['200']}
-                         bold
-                         mb="$1"
-                         sx={{
-                              '@base': {
-                                   fontSize: 18,
-                              },
-                              '@lg': {
-                                   fontSize: 24,
-                              },
-                         }}>
-                         {category}
-                    </Text>
-               </Box>
-          )
-     }
-
      return (
-          <Pressable maxWidth="80%" onPress={() => onPressCategory(category, textId, source)}>
+          <Pressable maxWidth="80%" /*onPress={() => onPressCategory(category, textId, source)}*/>
                <Text
                     color={colorMode === 'light' ? theme['colors']['gray']['800'] : theme['colors']['coolGray']['200']}
                     bold
@@ -377,6 +359,8 @@ const DisplayMoreResultsButton = ({ category }) => {
      const { theme } = React.useContext(ThemeContext);
      const { language } = React.useContext(LanguageContext);
 
+     const isListSource = category.source === 'List';
+
      const onPressMoreResults = (label, key, source) => {
           let screen = 'SearchByCategory';
           if (source === 'List') {
@@ -393,7 +377,7 @@ const DisplayMoreResultsButton = ({ category }) => {
 
      return (
           <Pressable
-               onPress={() => onPressMoreResults(category.label, category.textId, category.source ?? 'GroupedWork')}
+               onPress={() => onPressMoreResults(category.label, isListSource ? category.sourceListId : category.textId, category.source ?? 'GroupedWork')}
                ml="$1"
                alignItems="center"
                justifyContent="center"
