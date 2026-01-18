@@ -368,7 +368,7 @@ const DisplayMoreResultsButton = ({ category }) => {
 
      const onPressMoreResults = (label, key, source) => {
           let screen = 'SearchByCategory';
-          if (source === 'List') {
+          if (source === 'List' || source === 'userList') {
                screen = 'SearchByList';
           } else if (source === 'SavedSearch') {
                screen = 'SearchBySavedSearch';
