@@ -258,6 +258,7 @@ export const LibrarySystemProvider = ({ children }) => {
 
      const updateHomeScreenLinks = (data) => {
           setHomeScreenLinks(data);
+          logDebugMessage('updated home screen links in LibrarySystemContext');
      }
 
      const resetLibrary = () => {
