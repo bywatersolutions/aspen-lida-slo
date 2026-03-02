@@ -117,6 +117,7 @@ jobs:
 
       - name: 🏗  Setup Node.js
         uses: actions/setup-node@v4
+        working-directory: ./code
         with:
           node-version: "22"
           cache: "yarn"
@@ -124,6 +125,7 @@ jobs:
       - name: 📦 Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        working-directory: ./code
 
       - name: 📦 Setup yarn cache
         uses: actions/cache@v3
@@ -132,6 +134,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+        working-directory: ./code
 
       - name: 📦 Install dependencies
         run: |
