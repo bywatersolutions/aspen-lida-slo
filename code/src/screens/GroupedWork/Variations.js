@@ -368,8 +368,8 @@ const Variation = (payload) => {
                               </Badge>
                               {source === 'ils' || statusIndicator.isEContent ? (
                                    <Button variant="link" size="xs" onPress={handleOnPress}>
-                                        <ButtonIcon as={MapPinIcon} size="xs" color={theme['colors']['tertiary']['500']} mr="$1" />
-                                        <ButtonText color={theme['colors']['tertiary']['500']}>{getTermFromDictionary(language, 'where_is_it')}</ButtonText>
+                                        <ButtonIcon as={MapPinIcon} size="xs" color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} mr="$1" />
+                                        <ButtonText color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>{getTermFromDictionary(language, 'where_is_it')}</ButtonText>
                                    </Button>
                               ) : null}
                          </HStack>

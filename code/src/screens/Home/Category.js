@@ -15,7 +15,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 const DisplayBrowseCategory = ({category}) => {
      const queryClient = useQueryClient();
-     const { theme } = React.useContext(ThemeContext);
+     const { theme, colorMode } = React.useContext(ThemeContext);
      const { language } = React.useContext(LanguageContext);
      const { library } = React.useContext(LibrarySystemContext);
      const { maxNum } = React.useContext(BrowseCategoryContext);
@@ -97,14 +97,14 @@ const DisplayBrowseCategory = ({category}) => {
                     <HStack space="$3" alignItems="center" justifyContent="space-between" pb="$2">
                          <DisplayBrowseCategoryTitle category={category.label} key={category.id} textId={id} source={category.source ?? 'GroupedWork'} />
                          {subCategories.length > 0 ? (
-                              <Button variant="outline" size="xs" borderColor={theme['colors']['primary']['500']} sx={{ paddingHorizontal: 6, paddingVertical: 0, height: 24 }} onPress={() => onPressHideAll(category.textId)}>
-                                   <ButtonIcon as={MaterialIcons} name="close" color={theme['colors']['primary']['500']} mr="$1" />
-                                   <ButtonText color={theme['colors']['primary']['500']}>{getTermFromDictionary(language, 'hide_all')}</ButtonText>
+                              <Button variant="outline" size="xs" borderColor={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} sx={{ paddingHorizontal: 6, paddingVertical: 0, height: 24 }} onPress={() => onPressHideAll(category.textId)}>
+                                   <ButtonIcon as={MaterialIcons} name="close" color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} mr="$1" />
+                                   <ButtonText color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>{getTermFromDictionary(language, 'hide_all')}</ButtonText>
                               </Button>
                          ) : (
-                              <Button variant="outline" size="xs" borderColor={theme['colors']['primary']['500']} sx={{ paddingHorizontal: 6, paddingVertical: 0, height: 24 }} onPress={() => onPressHide(category.textId)}>
-                                   <ButtonIcon as={MaterialIcons} name="close" color={theme['colors']['primary']['500']} mr="$1" />
-                                   <ButtonText color={theme['colors']['primary']['500']}>{getTermFromDictionary(language, 'hide')}</ButtonText>
+                              <Button variant="outline" size="xs" borderColor={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} sx={{ paddingHorizontal: 6, paddingVertical: 0, height: 24 }} onPress={() => onPressHide(category.textId)}>
+                                   <ButtonIcon as={MaterialIcons} name="close" color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} mr="$1" />
+                                   <ButtonText color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>{getTermFromDictionary(language, 'hide')}</ButtonText>
                               </Button>
                          )}
                     </HStack>

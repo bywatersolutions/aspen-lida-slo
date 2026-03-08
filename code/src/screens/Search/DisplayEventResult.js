@@ -25,10 +25,10 @@ export const DisplayEventResult = (props) => {
 
      const backgroundColor = colorMode === 'light' ? theme['colors']['warmGray']['200'] : theme['colors']['coolGray']['900'];
 
-     const currentSource = item.type ?? 'unknown';
      const id = item.key ?? item.id;
-     const key = 'medium_' + id;
-     const url = item.image;
+     const keyParts = item.key.split('_');
+
+     let url = library.baseUrl + '/bookcover.php?id=' + item.key + '&size=medium&type=' + keyParts[0] + '_event';
 
      let registrationRequired = false;
      if (!_.isUndefined(item.registration_required)) {

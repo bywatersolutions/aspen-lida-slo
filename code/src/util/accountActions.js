@@ -377,7 +377,7 @@ export async function viewOverDriveItem(userId, formatId, overDriveId, url, lang
 }
 
 /* ACTIONS ON HOLDS */
-export async function freezeHold(cancelId, recordId, source, url, patronId, selectedReactivationDate = null, language = 'en') {
+export async function freezeHold(cancelId, recordId, source, url, patronId, selectedReactivationDate = null, language = 'en', allowIndefinite=false) {
      const postBody = await postData();
 
      const today = moment().format('YYYY-MM-DD');
@@ -387,9 +387,14 @@ export async function freezeHold(cancelId, recordId, source, url, patronId, sele
           if (reactivationDate === 'Invalid date') {
                reactivationDate = null;
           } else if (reactivationDate === today) {
-               reactivationDate = moment().add(30, 'days').format('YYYY-MM-DD');
+               if(allowIndefinite)
+               {
+                    reactivationDate = null;
+               } else {
+                    reactivationDate = moment().add(30, 'days').format('YYYY-MM-DD');
+               }
           }
-     } else {
+     } else if(!allowIndefinite) {
           reactivationDate = moment().add(30, 'days').format('YYYY-MM-DD');
      }
 
@@ -425,7 +430,7 @@ export async function freezeHold(cancelId, recordId, source, url, patronId, sele
      }
 }
 
-export async function freezeHolds(data, url, selectedReactivationDate = null, language = 'en') {
+export async function freezeHolds(data, url, selectedReactivationDate = null, language = 'en', allowIndefinite=false) {
      const postBody = await postData();
 
      const today = moment().format('YYYY-MM-DD');
@@ -435,9 +440,16 @@ export async function freezeHolds(data, url, selectedReactivationDate = null, la
           if (reactivationDate === 'Invalid date') {
                reactivationDate = null;
           } else if (reactivationDate === today) {
-               reactivationDate = moment().add(30, 'days').format('YYYY-MM-DD');
+               if(allowIndefinite)
+               {
+                    reactivationDate = null;
+               }
+               else 
+               {
+                    reactivationDate = moment().add(30, 'days').format('YYYY-MM-DD');
+               }
           }
-     } else {
+     } else if(!allowIndefinite) {
           reactivationDate = moment().add(30, 'days').format('YYYY-MM-DD');
      }
 

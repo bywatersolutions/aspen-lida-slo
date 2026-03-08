@@ -320,7 +320,7 @@ export const Editions = () => {
 
 const Edition = (payload) => {
      const { language } = React.useContext(LanguageContext);
-     const { theme, textColor } = React.useContext(ThemeContext);
+     const { theme, textColor, colorMode } = React.useContext(ThemeContext);
      const { response, setResponse, responseIsOpen, setResponseIsOpen, onResponseClose, cancelResponseRef, holdConfirmationResponse, setHoldConfirmationResponse, holdConfirmationIsOpen, setHoldConfirmationIsOpen, onHoldConfirmationClose, cancelHoldConfirmationRef, holdSelectItemResponse, setHoldSelectItemResponse, holdItemSelectIsOpen, setHoldItemSelectIsOpen, onHoldItemSelectClose, cancelHoldItemSelectRef, userHasAlternateLibraryCard, shouldPromptAlternateLibraryCard } = payload;
      const prevRoute = payload.prevRoute;
      const records = payload.records;
@@ -366,8 +366,8 @@ const Edition = (payload) => {
                               </Center>
                               {records.source === 'ils' || status.isEContent ? (
                                    <Button variant="link" size="xs" onPress={handleOnPress}>
-                                        <ButtonIcon as={MaterialIcons} name="location-pin" size="xs" color={theme['colors']['tertiary']['500']} />
-                                        <ButtonText color={theme['colors']['tertiary']['500']}>{getTermFromDictionary(language, 'where_is_it')}</ButtonText>
+                                        <ButtonIcon as={MaterialIcons} name="location-pin" size="xs" color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} />
+                                        <ButtonText color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>{getTermFromDictionary(language, 'where_is_it')}</ButtonText>
                                    </Button>
                               ) : null}
                          </VStack>

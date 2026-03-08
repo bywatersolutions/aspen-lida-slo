@@ -368,8 +368,8 @@ export const MyHolds = () => {
                                              </Select>
                                         </FormControl>
                                         <ManageSelectedHolds language={language} selectedValues={values} onAllDateChange={handleDateChange} selectedReactivationDate={date} resetGroup={resetGroup} />
-                                        <Button size="sm" variant="outline" mr="$1" onPress={() => clearGroupValue()} borderColor={theme['colors']['primary']['500']}>
-                                             <ButtonText color={theme['colors']['primary']['500']}>{getTermFromDictionary(language, 'holds_clear_selections')}</ButtonText>
+                                        <Button size="sm" variant="outline" mr="$1" onPress={() => clearGroupValue()} borderColor={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>
+                                             <ButtonText color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>{getTermFromDictionary(language, 'holds_clear_selections')}</ButtonText>
                                         </Button>
                                    </HStack>
                               </ScrollView>

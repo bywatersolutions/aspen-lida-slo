@@ -384,14 +384,14 @@ export const MyCheckouts = () => {
                                    </ButtonText>
                               </Button>
                               <Button
-                                   borderColor={theme['colors']['primary']['500']}
+                                   borderColor={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}
                                    size="sm"
                                    variant="outline"
                                    onPress={() => {
                                         setLoading(true);
                                         reloadCheckouts();
                                    }}>
-                                   <ButtonText color={theme['colors']['primary']['500']}>{getTermFromDictionary(language, 'checkouts_reload')}</ButtonText>
+                                   <ButtonText color={colorMode === 'light' ? theme['colors']['coolGray']['600'] : theme['colors']['warmGray']['50']}>{getTermFromDictionary(language, 'checkouts_reload')}</ButtonText>
                               </Button>
                               <FormControl w={checkoutsSourceLabelLength}>
                                    <Select

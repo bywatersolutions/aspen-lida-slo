@@ -43,6 +43,7 @@ import { getAppliedFilters, getAvailableFacetsKeys, getSortList, SEARCH, setDefa
 import { decodeHTML } from '../../util/apiAuth';
 import AddToList from './AddToList';
 import { logDebugMessage, logErrorMessage } from '../../util/logging';
+import { isValidUrl } from '../../util/validation';
 
 const blurhash = 'MHPZ}tt7*0WC5S-;ayWBofj[K5RjM{ofM_';
 
@@ -335,8 +336,13 @@ const DisplayResult = (data) => {
      let url = library.baseUrl + '/bookcover.php?id=' + item.key + '&size=medium';
 
      if (currentSource === 'events') {
-          //console.log(item);
-          url = imageUrl;
+          const keyParts = item.key.split('_');
+          if(isValidUrl(imageUrl)) {
+               url = imageUrl;
+          } else {
+              url += '&type=' + keyParts[0] + '_event';
+          }
+
           let registrationRequired = false;
           if (!_.isUndefined(item.registration_required)) {
                registrationRequired = item.registration_required;

@@ -194,12 +194,12 @@ const getTitle = (title) => {
 
 const getAuthor = (author) => {
      const { library } = React.useContext(LibrarySystemContext);
-     const { theme } = React.useContext(ThemeContext);
+     const { theme, colorMode } = React.useContext(ThemeContext);
      if (author) {
           return (
                <Button size="sm" variant="link" onPress={() => startSearch(author, 'SearchResults', library.baseUrl)}>
-                    <ButtonIcon as={SearchIcon} color={theme['colors']['tertiary']['400']} size="xs" mr="$1" />
-                    <ButtonText fontWeight="normal" color={theme['colors']['tertiary']['400']}>
+                    <ButtonIcon as={SearchIcon} color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']} size="xs" mr="$1" />
+                    <ButtonText fontWeight="normal" color={colorMode === 'light' ? theme['colors']['coolGray']['700'] : theme['colors']['warmGray']['100']}>
                          {author}
                     </ButtonText>
                </Button>

@@ -1,4 +1,4 @@
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Box, Button, ButtonText, ButtonSpinner, Checkbox, CheckboxIndicator, CheckboxIcon, CheckboxLabel, CheckIcon, FormControl, FormControlLabel, FormControlLabelText, Input, InputField, Select, SelectTrigger, SelectInput, SelectIcon, SelectPortal, SelectBackdrop, SelectContent, SelectDragIndicatorWrapper, SelectDragIndicator, SelectItem, Text, Textarea, TextareaInput, ScrollView, HStack, ChevronDownIcon, Alert, AlertText } from '@gluestack-ui/themed';
 import React from 'react';
 import { Platform } from 'react-native';
@@ -33,7 +33,7 @@ export const CreateLocalIllRequest = () => {
      logInfoMessage("Volume ID " + volumeId);
      logInfoMessage("Volume Name " + volumeName);
 
-     const { status, data, error, isFetching } = useQuery({
+     const { status, data, error, isFetching, refetch } = useQuery({
           queryKey: ['localIllForm', location.localIllFormId, library.baseUrl],
           queryFn: () => getLocalIllForm(library.baseUrl, location.localIllFormId),
           onSuccess: (data) => {
@@ -53,6 +53,18 @@ export const CreateLocalIllRequest = () => {
                logErrorMessage(error);
           },
      });
+
+     useFocusEffect(
+          React.useCallback(() => {
+               try {
+                    if (data.ok) {
+                         setFormConfig(data.data.result);
+                    }
+               } catch (e) {
+                    refetch();
+               }
+          }, [])
+     );
 
      return <>{status === 'loading' || isFetching ? loadingSpinner() : (hasError || status === 'error') ? loadError('The ILL System is not setup properly, please contact your library to place a request', '') : <Request config={formConfig} workId={id} workTitle={title} volumeId={volumeId} volumeName={volumeName} />}</>;
 };

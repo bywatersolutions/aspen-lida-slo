@@ -37,13 +37,13 @@ export const SelectThawDate = (props) => {
           setDate(date);
           onClose();
           if (data) {
-               freezeHolds(data, libraryContext.baseUrl, date, language).then((result) => {
+               freezeHolds(data, libraryContext.baseUrl, date, language, libraryContext.reactivateDateNotRequired ?? false).then((result) => {
                     setLoading(false);
                     resetGroup();
                     hideDatePicker();
                });
           } else {
-               freezeHold(freezeId, recordId, source, libraryContext.baseUrl, userId, date, language).then((result) => {
+               freezeHold(freezeId, recordId, source, libraryContext.baseUrl, userId, date, language, libraryContext.reactivateDateNotRequired ?? false).then((result) => {
                     setLoading(false);
                     resetGroup();
                     hideDatePicker();
