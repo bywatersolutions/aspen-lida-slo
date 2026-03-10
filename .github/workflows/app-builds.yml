@@ -21,7 +21,7 @@ env:
   EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
   ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-  GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+  GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
   GOOGLE_API_KEY_ANDROID: ${{ secrets.GOOGLE_API_KEY_ANDROID }}
   GOOGLE_API_KEY_APPLE: ${{ secrets.GOOGLE_API_KEY_APPLE }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -54,7 +54,7 @@ jobs:
           EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
           ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
           GOOGLE_API_KEY_ANDROID: ${{ secrets.GOOGLE_API_KEY_ANDROID }}
           GOOGLE_API_KEY_APPLE: ${{ secrets.GOOGLE_API_KEY_APPLE }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -80,7 +80,7 @@ jobs:
           check_secret "EXPO_TEAM_ID" "$EXPO_TEAM_ID"
           check_secret "ASC_APP_ID" "$ASC_APP_ID"
           check_secret "SENTRY_AUTH_TOKEN" "$SENTRY_AUTH_TOKEN"
-          check_secret "GOOGLE_PLAY_SERVICE_ACCOUNT" "$GOOGLE_PLAY_SERVICE_ACCOUNT"
+          check_secret "GOOGLE_SERVICE_ACCOUNT" "$GOOGLE_SERVICE_ACCOUNT"
           check_secret "GOOGLE_API_KEY_ANDROID" "$GOOGLE_API_KEY_ANDROID"
           check_secret "GOOGLE_API_KEY_APPLE" "$GOOGLE_API_KEY_APPLE"
           check_secret "SLACK_WEBHOOK" "$SLACK_WEBHOOK"
