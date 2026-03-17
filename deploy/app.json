@@ -1,0 +1,15 @@
+{
+  "name": "SLO County Public Libraries",
+  "slug": "slo",
+  "easId": "8aa03119-baae-4357-9e25-129deb38d59a",
+  "reverseDns": "org.aspendiscovery.slo",
+  "discoveryUrl": "https://catalog.slolibrary.org/",
+  "greenhouseUrl": "https://catalog.slolibrary.org/",
+  "libraryId": "2",
+  "themeId": "1",
+  "background": "#ffffff",
+  "sentryProject": "aspen-lida-slo",
+  "sentryDsn": "https://9f9ceb14d0ea996e400bb567c5009d54@o994439.ingest.us.sentry.io/4509163896504320",
+  "ascAppId": "6744701919",
+  "logLevel": "0"
+}
