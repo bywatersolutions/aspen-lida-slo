@@ -43,7 +43,7 @@ jobs:
           git checkout -B main origin/main
 
           # Rebase local commits onto upstream
-          git rebase upstream/main || {
+          git rebase upstream/main -X theirs || {
             echo "Rebase conflict detected. Aborting."
             git rebase --abort
             exit 1
