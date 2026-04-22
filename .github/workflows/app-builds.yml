@@ -25,6 +25,7 @@ env:
   GOOGLE_API_KEY_APPLE: ${{ secrets.GOOGLE_API_KEY_APPLE }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   CURL_HOME: /tmp/.curl
+  EXTRA_HEADERS: ${{ secrets.EXTRA_HEADERS }}
 
 jobs:
   check-skip:
@@ -103,6 +104,8 @@ jobs:
     steps:
       - name: 🏗  Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.LIDA_ACCESS_TOKEN }}
 
       - name: 🔒 Configure curl Cloudflare bypass header
         run: |

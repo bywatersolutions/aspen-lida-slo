@@ -59,6 +59,19 @@ module.exports = () => {
     const googleApiKeyApple = process.env.GOOGLE_API_KEY_APPLE;
     const googleApiKeyAndroid = process.env.GOOGLE_API_KEY_ANDROID;
     const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+    let extraHeaders = [];
+    if (process.env.EXTRA_HEADERS) {
+        try {
+            const parsed = JSON.parse(process.env.EXTRA_HEADERS);
+            if (Array.isArray(parsed)) {
+                extraHeaders = parsed;
+            } else {
+                console.warn('EXTRA_HEADERS must be a JSON array, ignoring');
+            }
+        } catch (e) {
+            console.warn('EXTRA_HEADERS is not valid JSON, ignoring:', e.message);
+        }
+    }
 
     let config = {
          name: app['name'],
@@ -162,6 +175,7 @@ module.exports = () => {
               patch: version['patch'],
               stage: version['stage'],
               logLevel: app['logLevel'],
+              headers: extraHeaders
          },
          plugins: [
               'expo-secure-store',

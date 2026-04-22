@@ -86,6 +86,12 @@ export function getHeaders(isPost = false, language = 'en') {
      headers['Cache-Control'] = 'no-cache';
      headers['Preferred-Language'] = language;
 
+     for(let index = 0; index < GLOBALS.extraHeaders.length; index++)
+     {
+          let header = GLOBALS.extraHeaders[index];
+          Object.assign(headers, header);
+     }
+
      if (isPost) {
           headers['Content-Type'] = 'application/x-www-form-urlencoded';
      }
